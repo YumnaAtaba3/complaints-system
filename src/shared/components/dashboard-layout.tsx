@@ -45,11 +45,13 @@ const DashboardLayout = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Button variant="ghost" size="icon" className="h-9 w-9 ">
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+
+              {/* ➜ Add z-50 here */}
+              <DropdownMenuContent align="end" className="w-56 z-50 bg-white">
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium">{user?.name}</p>
@@ -58,16 +60,21 @@ const DashboardLayout = () => {
                     </p>
                   </div>
                 </DropdownMenuLabel>
+
                 <DropdownMenuSeparator />
+
                 <DropdownMenuItem>
                   <User className="h-4 w-4 ltr:mr-2 rtl:ml-2" />
                   {t("profile")}
                 </DropdownMenuItem>
+
                 <DropdownMenuItem>
                   <Settings className="h-4 w-4 ltr:mr-2 rtl:ml-2" />
                   {t("settings")}
                 </DropdownMenuItem>
+
                 <DropdownMenuSeparator />
+
                 <DropdownMenuItem
                   onClick={handleLogout}
                   className="text-destructive"

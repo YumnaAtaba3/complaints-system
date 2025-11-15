@@ -3,22 +3,21 @@ import { userStorage } from "../storage";
 import type { AuthPayload, AuthResponse, UserProfile } from "../types";
 
 class AuthServices {
-  #endPoint = "/auth";
+  #endPoint = "/api/auth/";
 
   async login(payload: AuthPayload): Promise<AuthResponse> {
     const response = await httpClient.post<AuthResponse>(
-      `${this.#endPoint}/login`,
+      `${this.#endPoint}login`,
       payload
     );
 
     const { access_token, refresh_token } = response.data;
 
+    // IMPORTANT: prefer HttpOnly cookies set by server for security.
+    // Here we store token (for example) using userStorage wrapper -- adjust in production.
     userStorage.set(access_token);
-    return { access_token, refresh_token };
-  }
 
-  async signUp(payload: AuthPayload): Promise<AuthResponse> {
-    return this.login(payload);
+    return { access_token, refresh_token };
   }
 
   async getMe(): Promise<UserProfile> {

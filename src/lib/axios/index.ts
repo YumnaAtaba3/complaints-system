@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from "axios";
 import { userStorage } from "../../features/auth/storage";
 import { handleApiError } from "./axios-error-handler";
@@ -7,26 +8,63 @@ export const httpClient = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
 });
 
+// ----------------------
+// REQUEST INTERCEPTOR
+// ----------------------
 httpClient.interceptors.request.use(
   (config) => {
     const token = userStorage.get();
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    
+    console.log("%c[API REQUEST]", "color: blue; font-weight: bold;", {
+      url: config.url,
+      method: config.method,
+      headers: config.headers,
+      data: config.data,
+    });
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
+// ----------------------
+// RESPONSE INTERCEPTOR
+// ----------------------
 httpClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+   
+    console.log("%c[API RESPONSE]", "color: green; font-weight: bold;", {
+      url: response.config.url,
+      method: response.config.method,
+      status: response.status,
+      data: response.data,
+    });
+
+    return response;
+  },
+
   (error) => {
-    // ✅ Automatically logout on unauthorized error
+    
+    console.error("%c[API ERROR]", "color: red; font-weight: bold;", {
+      url: error?.config?.url,
+      method: error?.config?.method,
+      status: error?.response?.status,
+      response: error?.response?.data,
+    });
+
+    // Auto logout on 401
     if (error.response?.status === 401) {
       // logoutHelper();
     }
 
-    // Handle the rest of the errors
+    // Handle other errors
     handleApiError(error);
+
+    return Promise.reject(error);
   }
 );

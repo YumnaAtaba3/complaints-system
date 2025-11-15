@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function handleApiError(error: any) {
   if (!error.response) {
     // Network or unknown errors
