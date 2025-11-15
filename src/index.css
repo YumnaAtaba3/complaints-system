@@ -110,15 +110,14 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* Sidebar - Dark green in both modes */
-    --sidebar-background: 142 76% 15%;
-    --sidebar-foreground: 142 30% 85%;
-    --sidebar-primary: 142 30% 85%;
-    --sidebar-primary-foreground: 142 76% 15%;
-    --sidebar-accent: 142 76% 20%;
-    --sidebar-accent-foreground: 142 30% 85%;
-    --sidebar-border: 142 76% 18%;
-    --sidebar-ring: 142 30% 85%;
+    --sidebar-background: 177 61% 8%; /* #07201E */
+    --sidebar-foreground: 40 37% 60%; /* #BDA575 */
+    --sidebar-primary: 40 37% 60%;
+    --sidebar-primary-foreground: 177 61% 8%;
+    --sidebar-accent: 177 61% 12%;
+    --sidebar-accent-foreground: 40 37% 60%;
+    --sidebar-border: 177 61% 10%;
+    --sidebar-ring: 40 37% 60%;
   }
 
   .dark {
@@ -154,15 +153,14 @@ All colors MUST be HSL.
     --input: 179 20% 20%;
     --ring: 40 37% 60%;
 
-    /* Sidebar stays same dark green */
-    --sidebar-background: 142 76% 15%;
-    --sidebar-foreground: 142 30% 85%;
-    --sidebar-primary: 142 30% 85%;
-    --sidebar-primary-foreground: 142 76% 15%;
-    --sidebar-accent: 142 76% 20%;
-    --sidebar-accent-foreground: 142 30% 85%;
-    --sidebar-border: 142 76% 18%;
-    --sidebar-ring: 142 30% 85%;
+    --sidebar-background: 177 61% 8%; /* #07201E */
+    --sidebar-foreground: 40 37% 60%; /* #BDA575 */
+    --sidebar-primary: 40 37% 60%;
+    --sidebar-primary-foreground: 177 61% 8%;
+    --sidebar-accent: 177 61% 12%;
+    --sidebar-accent-foreground: 40 37% 60%;
+    --sidebar-border: 177 61% 10%;
+    --sidebar-ring: 40 37% 60%;
   }
 }
 

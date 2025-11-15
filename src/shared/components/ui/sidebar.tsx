@@ -68,9 +68,25 @@ const SidebarProvider = React.forwardRef<
     const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
 
+    // Read initial state from cookie if available
+    const getInitialOpenState = () => {
+      if (openProp !== undefined) return openProp;
+      if (typeof document !== "undefined") {
+        const cookies = document.cookie.split(";");
+        const sidebarCookie = cookies.find((cookie) =>
+          cookie.trim().startsWith(`${SIDEBAR_COOKIE_NAME}=`)
+        );
+        if (sidebarCookie) {
+          const value = sidebarCookie.split("=")[1];
+          return value === "true";
+        }
+      }
+      return defaultOpen;
+    };
+
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
-    const [_open, _setOpen] = React.useState(defaultOpen);
+    const [_open, _setOpen] = React.useState(getInitialOpenState);
     const open = openProp ?? _open;
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
@@ -218,21 +234,38 @@ const Sidebar = React.forwardRef<
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
         data-side={side}
+        style={{
+          "--sidebar-width": SIDEBAR_WIDTH,
+          "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+        } as React.CSSProperties}
       >
         {/* This is what handles the sidebar gap on desktop */}
         <div
           className={cn(
-            "relative h-svh w-[--sidebar-width] bg-transparent transition-[width] duration-200 ease-linear",
+            "relative h-svh bg-transparent transition-[width] duration-200 ease-linear shrink-0",
             "group-data-[collapsible=offcanvas]:w-0",
             "group-data-[side=right]:rotate-180",
             variant === "floating" || variant === "inset"
               ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
+              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]",
+            // Default width when expanded
+            state === "expanded" && collapsible !== "offcanvas" && "w-[--sidebar-width]"
           )}
+          style={{
+            width: state === "expanded" && collapsible !== "offcanvas"
+              ? "var(--sidebar-width)"
+              : state === "collapsed" && collapsible === "icon"
+              ? variant === "floating" || variant === "inset"
+                ? "calc(var(--sidebar-width-icon) + 1rem)"
+                : "var(--sidebar-width-icon)"
+              : state === "collapsed" && collapsible === "offcanvas"
+              ? "0"
+              : "var(--sidebar-width)",
+          }}
         />
         <div
           className={cn(
-            "fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] duration-200 ease-linear md:flex",
+            "fixed inset-y-0 z-10 hidden h-svh transition-[left,right,width] duration-200 ease-linear md:flex",
             side === "left"
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
@@ -240,13 +273,27 @@ const Sidebar = React.forwardRef<
             variant === "floating" || variant === "inset"
               ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
+            // Default width when expanded
+            state === "expanded" && collapsible !== "offcanvas" && "w-[--sidebar-width]",
             className
           )}
+          style={{
+            width: state === "expanded" && collapsible !== "offcanvas" 
+              ? "var(--sidebar-width)" 
+              : state === "collapsed" && collapsible === "icon"
+              ? "var(--sidebar-width-icon)"
+              : undefined,
+            ...(props.style as React.CSSProperties),
+          }}
           {...props}
         >
           <div
             data-sidebar="sidebar"
-            className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
+            className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
+            style={{
+              backgroundColor: "hsl(var(--sidebar-background))",
+              color: "hsl(var(--sidebar-foreground))",
+            }}
           >
             {children}
           </div>
@@ -322,6 +369,8 @@ const SidebarInset = React.forwardRef<
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
         "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
+        // Ensure proper layout for sidebar variant
+        "md:ml-0",
         className
       )}
       {...props}
