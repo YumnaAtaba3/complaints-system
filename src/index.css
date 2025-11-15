@@ -1,0 +1,178 @@
+/* :root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+} */
+
+@import "tailwindcss";
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 179 100% 7%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 179 100% 7%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 179 100% 7%;
+
+    /* Primary: Deep Teal #012523 */
+    --primary: 179 100% 7%;
+    --primary-foreground: 40 37% 60%;
+
+    /* Gold accent #BDA575 */
+    --gold: 40 37% 60%;
+    --gold-foreground: 179 100% 7%;
+
+    --secondary: 179 30% 95%;
+    --secondary-foreground: 179 100% 7%;
+
+    --muted: 179 20% 96%;
+    --muted-foreground: 179 15% 45%;
+
+    --accent: 40 37% 60%;
+    --accent-foreground: 179 100% 7%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 179 20% 90%;
+    --input: 179 20% 90%;
+    --ring: 40 37% 60%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar - Dark green in both modes */
+    --sidebar-background: 142 76% 15%;
+    --sidebar-foreground: 142 30% 85%;
+    --sidebar-primary: 142 30% 85%;
+    --sidebar-primary-foreground: 142 76% 15%;
+    --sidebar-accent: 142 76% 20%;
+    --sidebar-accent-foreground: 142 30% 85%;
+    --sidebar-border: 142 76% 18%;
+    --sidebar-ring: 142 30% 85%;
+  }
+
+  .dark {
+    /* Dark mode: green-black tones */
+    --background: 180 15% 8%;
+    --foreground: 40 37% 60%;
+
+    --card: 180 20% 12%;
+    --card-foreground: 40 37% 60%;
+
+    --popover: 180 20% 12%;
+    --popover-foreground: 40 37% 60%;
+
+    --primary: 40 37% 60%;
+    --primary-foreground: 179 100% 7%;
+
+    --gold: 40 37% 60%;
+    --gold-foreground: 179 100% 7%;
+
+    --secondary: 179 30% 15%;
+    --secondary-foreground: 40 37% 60%;
+
+    --muted: 179 20% 18%;
+    --muted-foreground: 179 15% 60%;
+
+    --accent: 40 37% 60%;
+    --accent-foreground: 179 100% 7%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 179 20% 20%;
+    --input: 179 20% 20%;
+    --ring: 40 37% 60%;
+
+    /* Sidebar stays same dark green */
+    --sidebar-background: 142 76% 15%;
+    --sidebar-foreground: 142 30% 85%;
+    --sidebar-primary: 142 30% 85%;
+    --sidebar-primary-foreground: 142 76% 15%;
+    --sidebar-accent: 142 76% 20%;
+    --sidebar-accent-foreground: 142 30% 85%;
+    --sidebar-border: 142 76% 18%;
+    --sidebar-ring: 142 30% 85%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
