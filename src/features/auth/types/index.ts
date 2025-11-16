@@ -3,15 +3,24 @@ export type AuthPayload = {
   password: string;
 };
 
-export type AuthResponse = {
-  access_token: string;
-  refresh_token: string;
-};
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  data: {
+    token: string;
+    user: {
+      id: number;
+      first_name: string;
+      last_name: string;
+      email: string;
+      roles: { id: number; name: string; label: string }[];
+    };
+  };
+}
 
 export type UserProfile = {
   id: number;
   email: string;
   name: string;
   role: string;
-  avatar: string;
 };

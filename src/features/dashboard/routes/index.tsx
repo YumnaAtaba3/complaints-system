@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { lazy, Suspense } from "react";
 import DashboardLayout from "@/shared/components/dashboard-layout";
 import ProtectedRoute from "@/shared/components/protected-route";
@@ -10,7 +11,7 @@ const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
 
 export const dashboardRoutes = [
   {
-    path: "/dashboard",
+    path: "/dashboard", // ← make absolute
     element: (
       <ProtectedRoute>
         <DashboardLayout />
@@ -84,4 +85,3 @@ export const dashboardRoutes = [
     ],
   },
 ];
-

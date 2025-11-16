@@ -1,23 +1,26 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { httpClient } from "../../../lib/axios";
 import { userStorage } from "../storage";
 import type { AuthPayload, AuthResponse, UserProfile } from "../types";
 
+
 class AuthServices {
   #endPoint = "/api/auth/";
 
-  async login(payload: AuthPayload): Promise<AuthResponse> {
+  async login(payload: AuthPayload): Promise<{ token: string; user: any }> {
     const response = await httpClient.post<AuthResponse>(
-      `${this.#endPoint}login`,
+      `${this.#endPoint}email-login`,
       payload
     );
 
-    const { access_token, refresh_token } = response.data;
+    if (!response.data.data?.token) {
+      throw new Error("Invalid login response: missing token");
+    }
 
-    // IMPORTANT: prefer HttpOnly cookies set by server for security.
-    // Here we store token (for example) using userStorage wrapper -- adjust in production.
-    userStorage.set(access_token);
+    // store token
+    userStorage.set(response.data.data.token);
 
-    return { access_token, refresh_token };
+    return response.data.data; // { token, user }
   }
 
   async getMe(): Promise<UserProfile> {

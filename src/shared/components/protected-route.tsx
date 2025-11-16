@@ -1,18 +1,19 @@
-import { Navigate } from "react-router-dom";
-import { useAuthStore } from "@/stores/use-auth-store";
+import { userStorage } from "@/features/auth/storage";
+import { Navigate, Outlet } from "react-router-dom";
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+export default function ProtectedRoute({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
+  const token = userStorage.get();
 
-  if (!isAuthenticated) {
+  if (!token) {
+    // redirect to login if not authenticated
     return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>;
-};
-
-export default ProtectedRoute;
+  // render children if provided, else render nested routes
+  return children ? <>{children}</> : <Outlet />;
+}

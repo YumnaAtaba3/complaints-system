@@ -1,10 +1,8 @@
 import {
   createBrowserRouter,
-  createHashRouter,
-  Outlet,
   RouterProvider,
   Navigate,
-} from "react-router-dom"; // <-- note: react-router-dom, not react-router
+} from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { LayoutContainer } from "@/shared/layouts/layout-container";
 import { authRoutes } from "../features/auth/routes";
@@ -17,10 +15,7 @@ const routes = [
     path: "/",
     element: <LayoutContainer />,
     children: [
-      {
-        index: true,
-        element: <Navigate to="/login" replace />,
-      },
+      { index: true, element: <Navigate to="/login" replace /> },
       ...authRoutes,
       ...dashboardRoutes,
       {
@@ -36,6 +31,7 @@ const routes = [
 ];
 
 const router = createBrowserRouter(routes);
+
 export function AppRouterProvider() {
   return <RouterProvider router={router} />;
 }

@@ -22,9 +22,7 @@ export const dataStorage = <T = unknown>(
     get: (): T | undefined => {
       if (!checkIsBrowser() || !storage) return undefined;
       const json = storage.getItem(key);
-
       if (!json) return undefined;
-
       try {
         return JSON.parse(json) as T;
       } catch {
@@ -39,5 +37,5 @@ export const dataStorage = <T = unknown>(
   };
 };
 
-export const dataSessionStorage = <T = unknown>(key: string) =>
-  dataStorage<T>(key, () => sessionStorage);
+// Persistent user token storage
+export const userStorage = dataStorage<string>("token");

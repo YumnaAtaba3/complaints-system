@@ -1,94 +1,91 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
+
 import { Label } from "@/shared/components/ui/label";
 import { useTranslation } from "react-i18next";
+
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+
 import { useLoginMutation } from "../services/mutations";
-import { loginSchema } from "../config";
 import { InputField } from "./InputField";
+import { userStorage } from "../storage";
+import { loginSchema, type LoginFormValues } from "../config";
+import Snackbar from "./Snackbar";
+
 
 export const LoginForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { mutateAsync: login, isLoading: isPending } = useLoginMutation();
 
-  const [data, setData] = useState({
-    email: "",
-    password: "",
-    rememberMe: false,
-  });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const debounceTimer = useRef<number | null>(null);
-
-  // debounce email validation to avoid frequent calls
-  useEffect(() => {
-    if (debounceTimer.current) {
-      window.clearTimeout(debounceTimer.current);
-    }
-    debounceTimer.current = window.setTimeout(() => {
-      validateField("email", data.email);
-    }, 300);
-
-    return () => {
-      if (debounceTimer.current) window.clearTimeout(debounceTimer.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.email]);
-
-  const validateField = async (field: string, value: any) => {
-    try {
-      // replace current field and validate only that path
-      await loginSchema.validateAt(field, { ...data, [field]: value });
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    } catch (err: any) {
-      setErrors((prev) => ({ ...prev, [field]: err.message }));
-    }
+  const handleCloseSnackbar = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") return;
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: yupResolver(loginSchema),
+    mode: "onTouched",
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
+  });
 
+  const { mutateAsync: login, isLoading: isPending } = useLoginMutation();
+
+  const onSubmit = async (data: LoginFormValues) => {
     try {
-      await loginSchema.validate(data, { abortEarly: false });
-
-      // call login mutation
-      await login({
+      const result = await login({
         email: data.email,
         password: data.password,
       });
 
-      // redirect after success
-      navigate("/dashboard");
-    } catch (err: any) {
-      // validation errors from Yup
-      if (err.inner) {
-        const newErrors: Record<string, string> = {};
-        err.inner.forEach((e: any) => {
-          newErrors[e.path] = e.message;
-        });
-        setErrors(newErrors);
-      }
-    //    else {
-    //     // non-validation error (e.g., network / API)
-    //     // show generic message (you can replace with toast)
-    //     setErrors((prev) => ({
-    //       ...prev,
-    //       _global: err?.message || "Something went wrong",
-    //     }));
-    //   }
+      console.log("Login result:", result);
+
+      // store token
+      userStorage.set(result.token);
+
+      // show success snackbar
+      setSnackbar({
+        open: true,
+        message: t("loginSuccess") || "Login successful! Redirecting...",
+        severity: "success",
+      });
+
+      // redirect after 1.5s
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500);
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message:
+          error?.response?.data?.message ||
+          error?.message ||
+          t("loginFailed") ||
+          "Login failed. Please check your credentials.",
+        severity: "error",
+      });
     }
   };
-
-  // computed disabled state: empty fields or any existing error
-  const isDisabled = useMemo(() => {
-    const hasEmpty = !data.email || !data.password;
-    const hasErrors = Object.values(errors).some((v) => v && v.length > 0);
-    return hasEmpty || hasErrors || isPending;
-  }, [data.email, data.password, errors, isPending]);
 
   return (
     <div className="space-y-6">
@@ -101,51 +98,55 @@ export const LoginForm = () => {
       </div>
 
       {/* FORM */}
-      <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         {/* EMAIL */}
-        <InputField
-          id="email"
-          label={t("email")}
-          type="email"
-          placeholder="admin@example.com"
-          value={data.email}
-          onChange={async (v) => {
-            // prevent spaces in email
-            const sanitized = v.replace(/\s/g, "");
-            setData((prev) => ({ ...prev, email: sanitized }));
-            // we validate via debounce effect; optionally validate immediately:
-            // await validateField("email", sanitized);
-          }}
-          error={errors.email}
-          required
+        <Controller
+          name="email"
+          control={control}
+          render={({ field }) => (
+            <InputField
+              id="email"
+              label={t("email")}
+              type="email"
+              placeholder="admin@example.com"
+              value={field.value}
+              onChange={(v) => field.onChange(v.replace(/\s/g, ""))}
+              error={errors.email?.message}
+              required
+            />
+          )}
         />
 
         {/* PASSWORD */}
-        <InputField
-          id="password"
-          label={t("password")}
-          type="password"
-          passwordToggle
-          value={data.password}
-          onChange={async (v) => {
-            // prevent spaces in password
-            const sanitized = v.replace(/\s/g, "");
-            setData((prev) => ({ ...prev, password: sanitized }));
-            await validateField("password", sanitized);
-          }}
-          error={errors.password}
-          required
+        <Controller
+          name="password"
+          control={control}
+          render={({ field }) => (
+            <InputField
+              id="password"
+              label={t("password")}
+              type="password"
+              passwordToggle
+              value={field.value}
+              onChange={(v) => field.onChange(v.replace(/\s/g, ""))}
+              error={errors.password?.message}
+              required
+            />
+          )}
         />
 
-        {/* REMEMBER */}
+        {/* REMEMBER ME */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <Checkbox
-              checked={data.rememberMe}
-              onCheckedChange={async (v) => {
-                setData((prev) => ({ ...prev, rememberMe: v as boolean }));
-                await validateField("rememberMe", v);
-              }}
+            <Controller
+              name="rememberMe"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(v) => field.onChange(v as boolean)}
+                />
+              )}
             />
             <Label className="text-sm cursor-pointer">{t("rememberMe")}</Label>
           </div>
@@ -155,29 +156,27 @@ export const LoginForm = () => {
           </Button>
         </div>
 
-        {/* GLOBAL ERROR */}
-        {errors._global && (
-          <p className="text-sm text-red-500">{errors._global}</p>
-        )}
-
         {/* SUBMIT */}
         <Button
           type="submit"
-          className={`w-full h-11 bg-[#012523] text-[#BDA575] ${
-            isDisabled ? "opacity-60 pointer-events-none" : ""
-          }`}
-          disabled={isDisabled}
+          className="w-full h-11 bg-[#012523] text-[#BDA575]"
+          disabled={isPending}
         >
           {isPending ? (
-            <div
-              className="inline-block h-5 w-5 rounded-full border-2 border-t-transparent border-white animate-spin"
-              aria-hidden
-            />
+            <div className="inline-block h-5 w-5 rounded-full border-2 border-t-transparent border-white animate-spin" />
           ) : (
             t("login")
           )}
         </Button>
       </form>
+
+      {/* SNACKBAR */}
+      <Snackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={handleCloseSnackbar}
+      />
     </div>
   );
 };

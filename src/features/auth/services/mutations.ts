@@ -1,11 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import type { AuthPayload, AuthResponse } from "../types";
-import AuthServices from "../services/api";
+
+import AuthServices from "./api";
+import type { AuthPayload } from "../types";
 
 export function useLoginMutation() {
-  return useMutation<AuthResponse, Error, AuthPayload>({
-    mutationFn: async (payload) => {
-      return await AuthServices.login(payload);
-    },
+  return useMutation({
+    mutationFn: (payload: AuthPayload) => AuthServices.login(payload),
   });
 }
