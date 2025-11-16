@@ -1,3 +1,4 @@
+import { userStorage } from "@/features/auth/storage";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -20,8 +21,8 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
+
       login: async (email: string, password: string) => {
-        // Mock login - replace with actual API call
         const mockUser: User = {
           id: "1",
           email,
@@ -30,7 +31,9 @@ export const useAuthStore = create<AuthState>()(
         };
         set({ user: mockUser, isAuthenticated: true });
       },
+
       logout: () => {
+        userStorage.remove(); // 🔐 CLEAR TOKEN
         set({ user: null, isAuthenticated: false });
       },
     }),
