@@ -1,12 +1,11 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
-
 import { Label } from "@/shared/components/ui/label";
 import { useTranslation } from "react-i18next";
-
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -15,6 +14,7 @@ import { InputField } from "./InputField";
 import { userStorage } from "../storage";
 import { loginSchema, type LoginFormValues } from "../config";
 import Snackbar from "./Snackbar";
+import { useDebounce } from "@/shared/hooks/debounce";
 
 
 export const LoginForm = () => {
@@ -58,19 +58,15 @@ export const LoginForm = () => {
         password: data.password,
       });
 
-      console.log("Login result:", result);
-
-      // store token
       userStorage.set(result.token);
 
-      // show success snackbar
       setSnackbar({
         open: true,
         message: t("loginSuccess") || "Login successful! Redirecting...",
         severity: "success",
       });
 
-      // redirect after 1.5s
+
       setTimeout(() => {
         navigate("/dashboard");
       }, 1500);
@@ -103,36 +99,54 @@ export const LoginForm = () => {
         <Controller
           name="email"
           control={control}
-          render={({ field }) => (
-            <InputField
-              id="email"
-              label={t("email")}
-              type="email"
-              placeholder="admin@example.com"
-              value={field.value}
-              onChange={(v) => field.onChange(v.replace(/\s/g, ""))}
-              error={errors.email?.message}
-              required
-            />
-          )}
+          render={({ field }) => {
+            const [emailValue, setEmailValue] = useState(field.value);
+            const debouncedEmail = useDebounce(emailValue, 500);
+
+            useEffect(() => {
+              field.onChange(debouncedEmail);
+            }, [debouncedEmail, field]);
+
+            return (
+              <InputField
+                id="email"
+                label={t("email")}
+                type="email"
+                placeholder="admin@example.com"
+                value={emailValue}
+                onChange={(v) => setEmailValue(v.replace(/\s/g, ""))}
+                error={errors.email?.message}
+                required
+              />
+            );
+          }}
         />
 
         {/* PASSWORD */}
         <Controller
           name="password"
           control={control}
-          render={({ field }) => (
-            <InputField
-              id="password"
-              label={t("password")}
-              type="password"
-              passwordToggle
-              value={field.value}
-              onChange={(v) => field.onChange(v.replace(/\s/g, ""))}
-              error={errors.password?.message}
-              required
-            />
-          )}
+          render={({ field }) => {
+            const [passwordValue, setPasswordValue] = useState(field.value);
+            const debouncedPassword = useDebounce(passwordValue, 500);
+
+            useEffect(() => {
+              field.onChange(debouncedPassword);
+            }, [debouncedPassword, field]);
+
+            return (
+              <InputField
+                id="password"
+                label={t("password")}
+                type="password"
+                passwordToggle
+                value={passwordValue}
+                onChange={(v) => setPasswordValue(v.replace(/\s/g, ""))}
+                error={errors.password?.message}
+                required
+              />
+            );
+          }}
         />
 
         {/* REMEMBER ME */}

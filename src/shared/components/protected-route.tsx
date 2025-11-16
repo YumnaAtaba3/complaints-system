@@ -10,10 +10,10 @@ export default function ProtectedRoute({
   const token = userStorage.get();
 
   if (!token) {
-    // redirect to login if not authenticated
+
     return <Navigate to="/login" replace />;
   }
 
-  // render children if provided, else render nested routes
+ 
   return children ? <>{children}</> : <Outlet />;
 }
