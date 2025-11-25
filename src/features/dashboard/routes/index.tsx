@@ -4,6 +4,7 @@ import DashboardLayout from "@/shared/components/dashboard-layout";
 import ProtectedRoute from "@/shared/components/protected-route";
 
 const DashboardPage = lazy(() => import("../pages/dashboard"));
+const UsersPage = lazy(() => import("../pages/users"));
 
 const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
@@ -34,30 +35,7 @@ export const dashboardRoutes = [
           </SuspenseWrapper>
         ),
       },
-      {
-        path: "pending",
-        element: (
-          <SuspenseWrapper>
-            <DashboardPage />
-          </SuspenseWrapper>
-        ),
-      },
-      {
-        path: "in-progress",
-        element: (
-          <SuspenseWrapper>
-            <DashboardPage />
-          </SuspenseWrapper>
-        ),
-      },
-      {
-        path: "resolved",
-        element: (
-          <SuspenseWrapper>
-            <DashboardPage />
-          </SuspenseWrapper>
-        ),
-      },
+
       {
         path: "statistics",
         element: (
@@ -70,7 +48,7 @@ export const dashboardRoutes = [
         path: "users",
         element: (
           <SuspenseWrapper>
-            <DashboardPage />
+            <UsersPage />
           </SuspenseWrapper>
         ),
       },

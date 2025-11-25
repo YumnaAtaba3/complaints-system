@@ -41,21 +41,21 @@ const DashboardSidebar = () => {
       url: "/dashboard/complaints",
       icon: FileText,
     },
-    {
-      title: t("pending"),
-      url: "/dashboard/pending",
-      icon: Clock,
-    },
-    {
-      title: t("inProgress"),
-      url: "/dashboard/in-progress",
-      icon: RefreshCw,
-    },
-    {
-      title: t("resolved"),
-      url: "/dashboard/resolved",
-      icon: CheckCircle,
-    },
+    // {
+    //   title: t("pending"),
+    //   url: "/dashboard/pending",
+    //   icon: Clock,
+    // },
+    // {
+    //   title: t("inProgress"),
+    //   url: "/dashboard/in-progress",
+    //   icon: RefreshCw,
+    // },
+    // {
+    //   title: t("resolved"),
+    //   url: "/dashboard/resolved",
+    //   icon: CheckCircle,
+    // },
   ];
 
   const secondaryItems = [

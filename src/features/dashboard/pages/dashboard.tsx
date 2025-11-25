@@ -18,27 +18,6 @@ const Dashboard = () => {
       color: "text-blue-500",
       bgColor: "bg-blue-500/10",
     },
-    {
-      title: t("pending"),
-      value: "156",
-      icon: Clock,
-      color: "text-amber-500",
-      bgColor: "bg-amber-500/10",
-    },
-    {
-      title: t("inProgress"),
-      value: "89",
-      icon: RefreshCw,
-      color: "text-purple-500",
-      bgColor: "bg-purple-500/10",
-    },
-    {
-      title: t("resolved"),
-      value: "989",
-      icon: CheckCircle,
-      color: "text-green-500",
-      bgColor: "bg-green-500/10",
-    },
   ];
 
   return (
@@ -112,4 +91,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
