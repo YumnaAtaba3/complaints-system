@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function handleApiError(error: any) {
   if (!error.response) {
-    // Network or unknown errors
     throw new Error("Network error — please check your connection.");
+  }
+
+
+  if (error.response.data?.message) {
+    throw new Error(error.response.data.message);
   }
 
   const status = error.response.status;

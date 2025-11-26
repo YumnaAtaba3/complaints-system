@@ -1,7 +1,8 @@
-import { useUserProfile } from "../services/queries";
+import { userStorage } from "../storage";
 
 export function useIsLoggedIn() {
-  const { data: user, isLoading } = useUserProfile();
-  console.log(Boolean(user));
-  return { isLoggedIn: Boolean(user), isLoading };
+  const token = userStorage.get(); 
+  const isLoggedIn = Boolean(token);
+
+  return { isLoggedIn, isLoading: false }; 
 }

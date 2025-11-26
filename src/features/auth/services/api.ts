@@ -1,34 +1,49 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { httpClient } from "../../../lib/axios";
 import { userStorage } from "../storage";
-import type { AuthPayload, AuthResponse, UserProfile } from "../types";
+import type { AuthPayload, AuthResponse } from "../types";
 
+interface LoginResult {
+  token: string;
+  user: any;
+  message: string;
+}
 
 class AuthServices {
   #endPoint = "/api/auth/";
 
-  async login(payload: AuthPayload): Promise<{ token: string; user: any }> {
+  async login(payload: AuthPayload): Promise<LoginResult> {
     const response = await httpClient.post<AuthResponse>(
       `${this.#endPoint}email-login`,
       payload
     );
 
-    if (!response.data.data?.token) {
-      throw new Error("Invalid login response: missing token");
+    const data = response.data.data;
+
+    if (!data?.token) {
+      // throw the API message if available
+      throw new Error(response.data.message || "Invalid login response: missing token");
     }
 
     // store token
-    userStorage.set(response.data.data.token);
+    userStorage.set(data.token);
 
-    return response.data.data; // { token, user }
-  }
-
-  async getMe(): Promise<UserProfile> {
-    const response = await httpClient.get<UserProfile>(
-      `${this.#endPoint}/profile`
-    );
-    return response.data;
+    return {
+      token: data.token,
+      user: data.user,
+      message: response.data.message || "Login successful",
+    };
   }
 }
 
 export default new AuthServices();
+
+
+
+
+  // async getMe(): Promise<UserProfile> {
+  //   const response = await httpClient.get<UserProfile>(
+  //     `${this.#endPoint}/profile`
+  //   );
+  //   return response.data;
+  // }

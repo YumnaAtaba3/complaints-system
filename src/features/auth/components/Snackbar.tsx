@@ -6,13 +6,14 @@ type Props = {
   message: string;
   severity: "success" | "error" | "info" | "warning";
   onClose: () => void;
-  duration?: number; // optional, default 3000ms
+  duration?: number; 
 };
 
+// Icon definitions
 const icons = {
   success: (
     <svg
-      className="w-5 h-5 text-green-500"
+      className="w-6 h-6 text-green-500"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -27,7 +28,7 @@ const icons = {
   ),
   error: (
     <svg
-      className="w-5 h-5 text-red-500"
+      className="w-6 h-6 text-red-500"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -42,7 +43,7 @@ const icons = {
   ),
   info: (
     <svg
-      className="w-5 h-5 text-blue-500"
+      className="w-6 h-6 text-blue-500"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -57,7 +58,7 @@ const icons = {
   ),
   warning: (
     <svg
-      className="w-5 h-5 text-yellow-500"
+      className="w-6 h-6 text-yellow-500"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -72,6 +73,18 @@ const icons = {
   ),
 };
 
+// Utility: get direction dynamically from localStorage
+const getDirection = (): "rtl" | "ltr" => {
+  try {
+    const stored = localStorage.getItem("language-storage");
+    if (!stored) return "ltr";
+    const parsed = JSON.parse(stored);
+    return parsed.state?.language === "ar" ? "rtl" : "ltr";
+  } catch {
+    return "ltr";
+  }
+};
+
 const Snackbar: React.FC<Props> = ({
   open,
   message,
@@ -80,7 +93,9 @@ const Snackbar: React.FC<Props> = ({
   duration = 3000,
 }) => {
   const [visible, setVisible] = useState(open);
+  const dir = getDirection(); // dynamic RTL/LTR
 
+  // Auto close logic
   useEffect(() => {
     if (open) {
       setVisible(true);
@@ -94,33 +109,63 @@ const Snackbar: React.FC<Props> = ({
 
   if (!visible) return null;
 
+  // Colors per severity
   const colors = {
-    success: "bg-green-50 border-green-200",
-    error: "bg-red-50 border-red-200",
-    info: "bg-blue-50 border-blue-200",
-    warning: "bg-yellow-50 border-yellow-200",
+    success: "bg-green-50 border-l-4 border-green-500",
+    error: "bg-red-50 border-l-4 border-red-500",
+    info: "bg-blue-50 border-l-4 border-blue-500",
+    warning: "bg-yellow-50 border-l-4 border-yellow-500",
   };
 
   return (
     <div
       role="alert"
-      className={`fixed top-5 right-5 max-w-sm w-full flex items-center rounded-xl border p-3 shadow-lg transition-all duration-300 transform z-1000 ${
-        visible ? "translate-x-0 opacity-100" : "translate-x-20 opacity-0"
+      className={`fixed top-5 ${
+        dir === "rtl" ? "left-5" : "right-5"
+      } max-w-sm w-full flex items-center rounded-xl shadow-xl p-4 transition-transform duration-300 transform z-[9999] ${
+        visible
+          ? "translate-x-0 opacity-100 scale-100"
+          : dir === "rtl"
+          ? "-translate-x-24 opacity-0 scale-95"
+          : "translate-x-24 opacity-0 scale-95"
       } ${colors[severity]}`}
     >
       {/* Icon */}
       <div className="shrink-0">{icons[severity]}</div>
 
       {/* Message */}
-      <div className="flex-1 ml-3 text-gray-800 font-medium">{message}</div>
+      <div
+        className={`flex-1 text-gray-900 font-medium text-sm ${
+          dir === "rtl" ? "mr-3 text-right" : "ml-3 text-left"
+        }`}
+      >
+        {message}
+      </div>
 
-      {/* Close */}
+      {/* Close Button */}
       <button
         aria-label="Close"
-        onClick={() => setVisible(false)}
-        className="ml-3 text-gray-400 hover:text-gray-600 transition-colors"
+        onClick={() => {
+          setVisible(false);
+          onClose();
+        }}
+        className={`text-gray-400 hover:text-gray-700 transition-all duration-200 rounded-full p-1 ${
+          dir === "rtl" ? "ml-0 mr-4" : "ml-4"
+        } hover:bg-gray-200`}
       >
-        ×
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={3}
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
       </button>
     </div>
   );

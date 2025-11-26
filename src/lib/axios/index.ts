@@ -19,7 +19,9 @@ httpClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    
+    // Add Accept-Language header
+    config.headers["Accept-Language"] = navigator.language || "en";
+
     console.log("%c[API REQUEST]", "color: blue; font-weight: bold;", {
       url: config.url,
       method: config.method,
