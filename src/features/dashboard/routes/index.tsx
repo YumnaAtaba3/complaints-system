@@ -1,65 +1,31 @@
-/* eslint-disable react-refresh/only-export-components */
-import { lazy, Suspense } from "react";
-import DashboardLayout from "@/shared/components/dashboard-layout";
+import { lazy, Suspense, type JSX } from "react";
+import DashboardLayout from "../components/dashboard-layout";
 import ProtectedRoute from "@/shared/components/protected-route";
 
 const DashboardPage = lazy(() => import("../pages/dashboard"));
 const UsersPage = lazy(() => import("../pages/users"));
+const Complaints = lazy(() => import("../pages/complaints"));
+const Statistics = lazy(() => import("../pages/statistics"));
+const Settings = lazy(() => import("../pages/settings"));
 
-const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+const Load = (c: JSX.Element) => (
+  <Suspense fallback={<div>Loading...</div>}>{c}</Suspense>
 );
 
 export const dashboardRoutes = [
   {
-    path: "/dashboard", // ← make absolute
+    path: "/dashboard",
     element: (
       <ProtectedRoute>
         <DashboardLayout />
       </ProtectedRoute>
     ),
     children: [
-      {
-        index: true,
-        element: (
-          <SuspenseWrapper>
-            <DashboardPage />
-          </SuspenseWrapper>
-        ),
-      },
-      {
-        path: "complaints",
-        element: (
-          <SuspenseWrapper>
-            <DashboardPage />
-          </SuspenseWrapper>
-        ),
-      },
-
-      {
-        path: "statistics",
-        element: (
-          <SuspenseWrapper>
-            <DashboardPage />
-          </SuspenseWrapper>
-        ),
-      },
-      {
-        path: "users",
-        element: (
-          <SuspenseWrapper>
-            <UsersPage />
-          </SuspenseWrapper>
-        ),
-      },
-      {
-        path: "settings",
-        element: (
-          <SuspenseWrapper>
-            <DashboardPage />
-          </SuspenseWrapper>
-        ),
-      },
+      { index: true, element: Load(<DashboardPage />) },
+      { path: "complaints", element: Load(<Complaints />) },
+      { path: "statistics", element: Load(<Statistics />) },
+      { path: "users", element: Load(<UsersPage />) },
+      { path: "settings", element: Load(<Settings />) },
     ],
   },
 ];
