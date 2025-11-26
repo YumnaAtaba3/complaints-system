@@ -154,7 +154,7 @@ const UsersManagement: React.FC = () => {
                   <Filter className="h-4 w-4 ltr:mr-2 rtl:ml-2" />
                   <SelectValue placeholder={t("filterByUnit")} />
                 </SelectTrigger>
-                <SelectContent className="z-50">
+                <SelectContent className="z-50 bg-popover text-popover-foreground border border-border rounded-md shadow-md">
                   <SelectItem value="all">{t("allUnits")}</SelectItem>
                   <SelectItem value="1">{t("unit")} 1</SelectItem>
                   <SelectItem value="2">{t("unit")} 2</SelectItem>
