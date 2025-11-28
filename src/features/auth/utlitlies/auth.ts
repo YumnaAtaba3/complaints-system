@@ -1,10 +1,7 @@
 import { appRoutes } from "@/routes";
-import { userStorage } from "../storage";
+import { setToken } from "../hooks/auth-state";
 
 export function logoutHelper() {
-  userStorage.remove();
-
-  // Use the correct base for GitHub Pages
-  const base = import.meta.env.BASE_URL || "/E-commerce-d/";
-  window.location.href = `${base.replace(/\/$/, "")}${appRoutes.auth.login}`;
+  setToken(null);
+  window.location.href = appRoutes.auth.login; // إذا أردت redirect
 }

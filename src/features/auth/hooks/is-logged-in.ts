@@ -1,8 +1,10 @@
-import { userStorage } from "../storage";
+import { useAuthToken } from "../hooks/auth-state";
 
 export function useIsLoggedIn() {
-  const token = userStorage.get(); 
-  const isLoggedIn = Boolean(token);
+  const token = useAuthToken();
 
-  return { isLoggedIn, isLoading: false }; 
+  return {
+    isLoggedIn: Boolean(token),
+    isLoading: false,
+  };
 }

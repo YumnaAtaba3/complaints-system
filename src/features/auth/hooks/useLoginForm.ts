@@ -7,7 +7,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import { useLoginMutation } from "../services/mutations";
 import { loginSchema, type LoginFormValues } from "../config";
-import { userStorage } from "../storage";
+
+import { setToken } from "./auth-state";
 
 export function useLoginForm() {
   const { t } = useTranslation();
@@ -56,7 +57,7 @@ export function useLoginForm() {
         return;
       }
 
-      userStorage.set(result.token);
+     setToken(result.token); 
 
       setSnackbar({
         open: true,

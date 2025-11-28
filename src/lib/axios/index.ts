@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from "axios";
-import { userStorage } from "../../features/auth/storage";
 import { handleApiError } from "./axios-error-handler";
-import { logoutHelper } from "@/features/auth/utlitlies/auth";
+import { getSnapshot } from "@/features/auth/hooks/auth-state";
+
 
 export const httpClient = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
@@ -13,7 +13,8 @@ export const httpClient = axios.create({
 // ----------------------
 httpClient.interceptors.request.use(
   (config) => {
-    const token = userStorage.get();
+    const token = getSnapshot();
+
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
