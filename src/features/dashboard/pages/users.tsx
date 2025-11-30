@@ -117,15 +117,15 @@ const UsersManagement: React.FC = () => {
   return (
     <div className="container py-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-        <h1 className="text-3xl font-extrabold text-gold">
-          {t("usersManagement")}
+        <h1 className="text-3xl font-extrabold text-[#BFA673]">
+          Users Managment
         </h1>
         <Button
           onClick={() => console.log("add user")}
-          className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+          className="flex items-center gap-2 bg-[#082120] text-[#BFA673] hover:bg-primary/90"
         >
           <Plus className="h-4 w-4" />
-          <span>{t("addUser")}</span>
+          <span>Add User</span>
         </Button>
       </div>
 
@@ -136,8 +136,8 @@ const UsersManagement: React.FC = () => {
             <div className="relative flex-1">
               <Search className="absolute ltr:left-3 rtl:right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                aria-label={t("searchUsers")}
-                placeholder={t("searchUsers")}
+                aria-label="Search Users"
+                placeholder="Search Users"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="ltr:pl-10 rtl:pr-10 w-full bg-background"
@@ -150,17 +150,17 @@ const UsersManagement: React.FC = () => {
                 value={selectedGovernmentUnit}
                 onValueChange={setSelectedGovernmentUnit}
               >
-                <SelectTrigger className="w-full flex items-center gap-2 justify-start bg-background">
+                <SelectTrigger className="w-full flex items-center gap-2 justify-start bg-white">
                   <Filter className="h-4 w-4 ltr:mr-2 rtl:ml-2" />
-                  <SelectValue placeholder={t("filterByUnit")} />
+                  <SelectValue placeholder="Filter By Unit" />
                 </SelectTrigger>
-                <SelectContent className="z-50 bg-popover text-popover-foreground border border-border rounded-md shadow-md">
-                  <SelectItem value="all">{t("allUnits")}</SelectItem>
-                  <SelectItem value="1">{t("unit")} 1</SelectItem>
-                  <SelectItem value="2">{t("unit")} 2</SelectItem>
-                  <SelectItem value="3">{t("unit")} 3</SelectItem>
-                  <SelectItem value="4">{t("unit")} 4</SelectItem>
-                  <SelectItem value="5">{t("unit")} 5</SelectItem>
+                <SelectContent className=" bg-white">
+                  <SelectItem value="all">All Units</SelectItem>
+                  <SelectItem value="1">Unit 1</SelectItem>
+                  <SelectItem value="2">Unit 2</SelectItem>
+                  <SelectItem value="3">Unit 3</SelectItem>
+                  <SelectItem value="4">Unit 4</SelectItem>
+                  <SelectItem value="5">Unit 5</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -173,16 +173,14 @@ const UsersManagement: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/40">
+                    <TableHead className="font-medium">User Name</TableHead>
+                    <TableHead className="font-medium">Email</TableHead>
+                    <TableHead className="font-medium">Phone</TableHead>
                     <TableHead className="font-medium">
-                      {t("userName")}
-                    </TableHead>
-                    <TableHead className="font-medium">{t("email")}</TableHead>
-                    <TableHead className="font-medium">{t("phone")}</TableHead>
-                    <TableHead className="font-medium">
-                      {t("nationalNumber")}
+                      National number
                     </TableHead>
                     <TableHead className="text-center font-medium">
-                      {t("actions")}
+                      Actions
                     </TableHead>
                   </TableRow>
                 </TableHeader>
