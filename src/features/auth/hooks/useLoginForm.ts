@@ -9,6 +9,7 @@ import { useLoginMutation } from "../services/mutations";
 import { loginSchema, type LoginFormValues } from "../config";
 
 import { setToken } from "./auth-state";
+import { sessionUserStorage, userStorage } from "../storage";
 
 export function useLoginForm() {
   const { t } = useTranslation();
@@ -44,8 +45,9 @@ export function useLoginForm() {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const result = await login({
-        email: data.email,
-        password: data.password,
+         email: data.email,
+    password: data.password,
+    rememberMe: data.rememberMe,
       });
 
       if (!result || !result.token) {
@@ -57,7 +59,12 @@ export function useLoginForm() {
         return;
       }
 
-     setToken(result.token); 
+  
+console.log("login result.token", result.token, "rememberMe", data.rememberMe);
+setToken(result.token, data.rememberMe);
+console.log("after setToken local:", userStorage.get(), "session:", sessionUserStorage.get());
+
+
 
       setSnackbar({
         open: true,

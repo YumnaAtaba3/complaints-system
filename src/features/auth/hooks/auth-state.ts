@@ -1,17 +1,32 @@
-/* eslint-disable prefer-const */
-import { useSyncExternalStore } from "react";
-import { userStorage } from "../storage";
+export const userStorageKey = "token";
+export const sessionUserStorageKey = "session_token";
 
-let token = userStorage.get() ?? null;
-let listeners = new Set<() => void>();
+let internalToken: string | null = null;
+const listeners = new Set<() => void>();
 
-export function setToken(newToken: string | null) {
-  token = newToken;
+export function setToken(token: string | null, rememberMe?: boolean) {
+  if (typeof window === "undefined") return;
 
-  if (newToken) userStorage.set(newToken);
-  else userStorage.remove();
+  if (token) {
+    if (rememberMe) {
+      localStorage.setItem(userStorageKey, token);
+      sessionStorage.removeItem(sessionUserStorageKey);
+    } else {
+      sessionStorage.setItem(sessionUserStorageKey, token);
+      localStorage.removeItem(userStorageKey);
+    }
+  } else {
+    localStorage.removeItem(userStorageKey);
+    sessionStorage.removeItem(sessionUserStorageKey);
+  }
 
+  internalToken = token;
   listeners.forEach((l) => l());
+}
+
+export function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return internalToken ?? localStorage.getItem(userStorageKey) ?? sessionStorage.getItem(sessionUserStorageKey);
 }
 
 export function subscribe(listener: () => void) {
@@ -19,11 +34,7 @@ export function subscribe(listener: () => void) {
   return () => listeners.delete(listener);
 }
 
-export function getSnapshot() {
-  return token;
-}
-
-
+import { useSyncExternalStore } from "react";
 export function useAuthToken() {
-  return useSyncExternalStore(subscribe, getSnapshot);
+  return useSyncExternalStore(subscribe, () => getToken());
 }
