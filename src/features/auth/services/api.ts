@@ -10,7 +10,7 @@ interface LoginResult {
 }
 
 class AuthServices {
-  #endPoint = "/api/auth/";
+  #endPoint = "/auth/";
 
   async login(payload: AuthPayload): Promise<LoginResult> {
     const response = await httpClient.post<AuthResponse>(
@@ -22,7 +22,9 @@ class AuthServices {
 
     if (!data?.token) {
       // throw the API message if available
-      throw new Error(response.data.message || "Invalid login response: missing token");
+      throw new Error(
+        response.data.message || "Invalid login response: missing token"
+      );
     }
 
     // store token
@@ -38,12 +40,9 @@ class AuthServices {
 
 export default new AuthServices();
 
-
-
-
-  // async getMe(): Promise<UserProfile> {
-  //   const response = await httpClient.get<UserProfile>(
-  //     `${this.#endPoint}/profile`
-  //   );
-  //   return response.data;
-  // }
+// async getMe(): Promise<UserProfile> {
+//   const response = await httpClient.get<UserProfile>(
+//     `${this.#endPoint}/profile`
+//   );
+//   return response.data;
+// }
