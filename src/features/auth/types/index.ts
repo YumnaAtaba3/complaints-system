@@ -1,6 +1,7 @@
 export type AuthPayload = {
   email: string;
   password: string;
+   rememberMe?: boolean; 
 };
 
 export interface AuthResponse {

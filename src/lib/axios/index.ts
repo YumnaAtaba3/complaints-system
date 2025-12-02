@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from "axios";
 import { handleApiError } from "./axios-error-handler";
-import { getSnapshot } from "@/features/auth/hooks/auth-state";
+import { getToken } from "@/features/auth/hooks/auth-state";
+
 
 
 export const httpClient = axios.create({
@@ -13,8 +14,7 @@ export const httpClient = axios.create({
 // ----------------------
 httpClient.interceptors.request.use(
   (config) => {
-    const token = getSnapshot();
-
+    const token = getToken()
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
