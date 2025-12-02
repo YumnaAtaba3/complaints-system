@@ -4,7 +4,7 @@ import DashboardLayout from "../components/dashboard-layout";
 import ProtectedRoute from "@/shared/components/protected-route";
 
 const DashboardPage = lazy(() => import("../pages/dashboard"));
-const UsersPage = lazy(() => import("../pages/users"));
+const UsersPage = lazy(() => import("@/features/users/pages/index"));
 const Complaints = lazy(() => import("../../complaints"));
 const Statistics = lazy(() => import("../pages/statistics"));
 const Settings = lazy(() => import("../pages/settings"));
