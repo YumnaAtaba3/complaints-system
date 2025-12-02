@@ -1,168 +1,107 @@
-// // features/users/pages/UsersPage.tsx
-// import React, { useEffect, useMemo, useState } from "react";
-// import { useQuery } from "react-query";
-// import { fetchUsers, type UsersListResponse } from "../services/users-api";
-// import { UsersTable } from "../components/users-table";
-// import { useUsersStore } from "../stores/users-store";
-// import { Button } from "@/shared/components/ui/button";
-// import { Input } from "@/shared/components/ui/input";
-// import {
-//   DropdownMenu,
-//   DropdownMenuTrigger,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuSeparator,
-// } from "@/shared/components/ui/dropdown-menu";
-// import { PlusCircle, Filter } from "lucide-react";
-// import { AddUserModal } from "../components/add-user-modal";
-// import { useTranslation } from "react-i18next";
+import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { Plus } from "lucide-react";
+import { Button } from "@/shared/components/ui/button";
+import UsersTable from "../components/users-table";
+import UsersFilters from "../components/users-filter";
+import UsersPagination from "../components/users-pagination";
 
-// const PER_PAGE = 10;
+const mockUsers = [
+  {
+    id: "1",
+    firstName: "أحمد",
+    lastName: "محمد",
+    email: "ahmed.mohamed@example.com",
+    phone: "+966501234567",
+    nationalNumber: "1234567890",
+    governmentUnitId: 1,
+  },
+  {
+    id: "2",
+    firstName: "فاطمة",
+    lastName: "علي",
+    email: "fatima.ali@example.com",
+    phone: "+966509876543",
+    nationalNumber: "0987654321",
+    governmentUnitId: 2,
+  },
+  // More mock users...
+];
 
-// const unitOptions = [
-//   { id: "all", label: "All Units" },
-//   { id: 1, label: "unit 1" },
-//   { id: 2, label: "unit 2" },
-//   { id: 3, label: "unit 3" },
-//   { id: 4, label: "unit 4" },
-//   { id: 5, label: "unit 5" },
-// ];
+const UsersPage: React.FC = () => {
+  const { t } = useTranslation();
 
-// const UsersPage: React.FC = () => {
-//   const { t, i18n } = useTranslation();
-//   const isRtl = i18n.dir?.() === "rtl";
-//   const [search, setSearch] = useState("");
-//   const [page, setPage] = useState(1);
-//   const { selectedUnit, setSelectedUnit, openAdd } = useUsersStore();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedGovernmentUnit, setSelectedGovernmentUnit] =
+    useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
-//   // React Query: users list
-//   const { data, isLoading, refetch } = useQuery<UsersListResponse>(
-//     ["users", { page, perPage: PER_PAGE, search, unit: selectedUnit }],
-//     () =>
-//       fetchUsers({
-//         page,
-//         perPage: PER_PAGE,
-//         search,
-//         unitId: selectedUnit === "all" ? undefined : selectedUnit,
-//       }),
-//     { keepPreviousData: true }
-//   );
+  const itemsPerPage = 10;
 
-//   useEffect(() => {
-//     // whenever filter/search changes, reset to page 1
-//     setPage(1);
-//   }, [search, selectedUnit]);
+  const filteredUsers = useMemo(() => {
+    return mockUsers.filter((user) => {
+      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+      const q = searchQuery.trim().toLowerCase();
 
-//   const onPageChange = (p: number) => {
-//     setPage(p);
-//     window.scrollTo({ top: 0, behavior: "smooth" });
-//   };
+      const matchesSearch =
+        q === "" ||
+        fullName.includes(q) ||
+        user.email.toLowerCase().includes(q) ||
+        user.phone.includes(q) ||
+        user.nationalNumber.includes(q);
 
-//   // actions (stubs to extend)
-//   const onView = (user: any) => {
-//     // navigate to `/dashboard/users/${user.id}` or open a view modal
-//     console.log("view", user);
-//   };
-//   const onEdit = (user: any) => {
-//     console.log("edit", user);
-//   };
-//   const onDelete = (user: any) => {
-//     // confirm and call API to delete, then refetch
-//     if (!confirm(t("areYouSure") ?? "Are you sure?")) return;
-//     console.log("delete", user);
-//     // call delete API then refetch()
-//   };
+      const matchesUnit =
+        selectedGovernmentUnit === "all" ||
+        user.governmentUnitId.toString() === selectedGovernmentUnit;
 
-//   // Render
-//   return (
-//     <div className={`${isRtl ? "rtl" : "ltr"} w-full`}>
-//       <div className="flex items-center justify-between mb-4">
-//         <h1
-//           className="text-2xl font-extrabold"
-//           style={{ color: "hsl(var(--gold))" }}
-//         >
-//           {t("usersManagement") ?? "usersManagement"}
-//         </h1>
+      return matchesSearch && matchesUnit;
+    });
+  }, [searchQuery, selectedGovernmentUnit]);
 
-//         <div className="flex items-center gap-2">
-//           <Button
-//             variant="ghost"
-//             size="icon"
-//             className="hidden sm:inline-flex"
-//             onClick={() => refetch()}
-//           >
-//             <Filter className="h-5 w-5" />
-//           </Button>
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredUsers.length / itemsPerPage)
+  );
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(filteredUsers.length, startIndex + itemsPerPage);
+  const currentUsers = filteredUsers.slice(startIndex, endIndex);
 
-//           <Button onClick={openAdd} className="flex items-center gap-2">
-//             <PlusCircle className="h-5 w-5" />
-//             <span>{t("addUser") ?? "addUser"}</span>
-//           </Button>
-//         </div>
-//       </div>
+  return (
+    <div className="container py-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+        <h1 className="text-3xl font-extrabold text-gold">
+          {t("usersManagement")}
+        </h1>
+        <Button
+          onClick={() => console.log("add user")}
+          className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          <Plus className="h-4 w-4" />
+          <span>{t("addUser")}</span>
+        </Button>
+      </div>
 
-//       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-//         <div className="md:col-span-2">
-//           <Input
-//             placeholder={t("searchUsers") ?? "searchUsers"}
-//             value={search}
-//             onChange={(e) => setSearch(e.target.value)}
-//             className="w-full"
-//           />
-//         </div>
+      <div className="card">
+        <UsersFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedGovernmentUnit={selectedGovernmentUnit}
+          setSelectedGovernmentUnit={setSelectedGovernmentUnit}
+        />
 
-//         <div className="flex justify-end">
-//           <DropdownMenu>
-//             <DropdownMenuTrigger asChild>
-//               <Button variant="outline" className="flex items-center gap-2">
-//                 <Filter className="h-4 w-4" />
-//                 <span>
-//                   {selectedUnit
-//                     ? selectedUnit === "all"
-//                       ? "allUnits"
-//                       : `unit ${selectedUnit}`
-//                     : "allUnits"}
-//                 </span>
-//               </Button>
-//             </DropdownMenuTrigger>
+        <UsersTable users={currentUsers} />
 
-//             <DropdownMenuContent align="end" className="z-50">
-//               <DropdownMenuItem
-//                 onClick={() => setSelectedUnit("all")}
-//                 className={`${selectedUnit === "all" ? "font-medium" : ""}`}
-//               >
-//                 {t("allUnits") ?? "allUnits"}
-//               </DropdownMenuItem>
-//               <DropdownMenuSeparator />
-//               {unitOptions
-//                 .filter((u) => u.id !== "all")
-//                 .map((u) => (
-//                   <DropdownMenuItem
-//                     key={u.id}
-//                     onClick={() => setSelectedUnit(u.id)}
-//                   >
-//                     {u.label}
-//                   </DropdownMenuItem>
-//                 ))}
-//             </DropdownMenuContent>
-//           </DropdownMenu>
-//         </div>
-//       </div>
+        <UsersPagination
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={totalPages}
+          startIndex={startIndex}
+          endIndex={endIndex}
+          filteredUsersLength={filteredUsers.length}
+        />
+      </div>
+    </div>
+  );
+};
 
-//       <UsersTable
-//         data={data}
-//         isLoading={isLoading}
-//         page={page}
-//         perPage={PER_PAGE}
-//         onPageChange={onPageChange}
-//         onView={onView}
-//         onEdit={onEdit}
-//         onDelete={onDelete}
-//       />
-
-//       <AddUserModal />
-//     </div>
-//   );
-// };
-
-// export default UsersPage;
+export default UsersPage;
