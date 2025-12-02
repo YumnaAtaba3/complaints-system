@@ -5,7 +5,7 @@ import ProtectedRoute from "@/shared/components/protected-route";
 
 const DashboardPage = lazy(() => import("../pages/dashboard"));
 const UsersPage = lazy(() => import("../pages/users"));
-const Complaints = lazy(() => import("../pages/complaints/index"));
+const Complaints = lazy(() => import("../../complaints"));
 const Statistics = lazy(() => import("../pages/statistics"));
 const Settings = lazy(() => import("../pages/settings"));
 
