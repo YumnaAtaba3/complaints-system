@@ -1,0 +1,51 @@
+{
+  "login": "Login",
+  "email": "Email",
+  "password": "Password",
+  "rememberMe": "Remember me",
+  "forgotPassword": "Forgot password?",
+  "welcomeBack": "Welcome Back",
+  "loginSubtitle": "Enter your credentials to access the admin dashboard",
+  "complaints": "Complaints",
+  "governmentSystem": "Government Complaints System",
+
+  "dashboard": "Dashboard",
+  "overview": "Overview",
+  "allComplaints": "All Complaints",
+  "pending": "Pending",
+  "inProgress": "In Progress",
+  "resolved": "Resolved",
+  "statistics": "Statistics",
+  "users": "Users",
+  "settings": "Settings",
+  "logout": "Logout",
+  "profile": "Profile",
+
+  "theme": "Theme",
+  "language": "Language",
+  "lightMode": "Light Mode",
+  "darkMode": "Dark Mode",
+
+  "usersManagement": "Users Management",
+  "addUser": "Add User",
+  "searchUsers": "Search Users",
+  "filterByUnit": "Filter By Unit",
+  "allUnits": "All Units",
+  "unit": "Unit",
+
+  "userName": "User Name",
+  "emailColumn": "Email",
+  "phone": "Phone",
+  "nationalNumber": "National Number",
+  "actions": "Actions",
+
+  "previous": "Previous",
+  "next": "Next",
+
+  "showing": "Showing",
+  "to": "to",
+  "of": "of",
+  "usersLower": "users",
+
+  "noUsersFound": "No users found"
+}

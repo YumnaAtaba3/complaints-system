@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, Search, Filter, Eye, Edit, Trash2 } from "lucide-react";
+
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import {
@@ -12,7 +13,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
+
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
+
 import {
   Select,
   SelectContent,
@@ -72,16 +75,19 @@ const mockUsers: User[] = [
 
 const UsersManagement: React.FC = () => {
   const { t } = useTranslation();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGovernmentUnit, setSelectedGovernmentUnit] =
     useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
+
   const itemsPerPage = 10;
 
   const filteredUsers = useMemo(() => {
     return mockUsers.filter((user) => {
       const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
       const q = searchQuery.trim().toLowerCase();
+
       const matchesSearch =
         q === "" ||
         fullName.includes(q) ||
@@ -101,11 +107,11 @@ const UsersManagement: React.FC = () => {
     1,
     Math.ceil(filteredUsers.length / itemsPerPage)
   );
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(filteredUsers.length, startIndex + itemsPerPage);
   const currentUsers = filteredUsers.slice(startIndex, endIndex);
 
-  // keep page valid when filtering
   React.useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(1);
   }, [totalPages, currentPage]);
@@ -116,23 +122,26 @@ const UsersManagement: React.FC = () => {
 
   return (
     <div className="container py-6">
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-        <h1 className="text-3xl font-extrabold text-[#BFA673]">
-          Users Managment
-        </h1>
+        <h1 className="text-3xl font-extrabold text-gold">Users Management</h1>
+
+        {/* Add Button */}
         <Button
           onClick={() => console.log("add user")}
-          className="flex items-center gap-2 bg-[#082120] text-[#BFA673] hover:bg-primary/90"
+          className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Plus className="h-4 w-4" />
           <span>Add User</span>
         </Button>
       </div>
 
+      {/* Card */}
       <Card>
         <CardHeader className="py-4">
+          {/* Filters Row */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full">
-            {/* Search */}
+            {/* Search Bar */}
             <div className="relative flex-1">
               <Search className="absolute ltr:left-3 rtl:right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -140,27 +149,27 @@ const UsersManagement: React.FC = () => {
                 placeholder="Search Users"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="ltr:pl-10 rtl:pr-10 w-full bg-background"
+                className="ltr:pl-10 rtl:pr-10 w-full bg-background text-foreground"
               />
             </div>
 
-            {/* Filter */}
+            {/* Government Unit Filter */}
             <div className="w-full sm:w-[220px]">
               <Select
                 value={selectedGovernmentUnit}
                 onValueChange={setSelectedGovernmentUnit}
               >
-                <SelectTrigger className="w-full flex items-center gap-2 justify-start bg-white">
-                  <Filter className="h-4 w-4 ltr:mr-2 rtl:ml-2" />
+                <SelectTrigger className="w-full bg-background text-foreground border-border">
+                  <Filter className="h-4 w-4 ltr:mr-2 rtl:ml-2 text-muted-foreground" />
                   <SelectValue placeholder="Filter By Unit" />
                 </SelectTrigger>
-                <SelectContent className=" bg-white">
+
+                <SelectContent className="bg-background text-foreground border-border">
                   <SelectItem value="all">All Units</SelectItem>
                   <SelectItem value="1">Unit 1</SelectItem>
                   <SelectItem value="2">Unit 2</SelectItem>
                   <SelectItem value="3">Unit 3</SelectItem>
                   <SelectItem value="4">Unit 4</SelectItem>
-                  <SelectItem value="5">Unit 5</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -170,16 +179,23 @@ const UsersManagement: React.FC = () => {
         <CardContent className="p-0">
           <div className="rounded-b-md border-t border-border">
             <div className="overflow-x-auto">
+              {/* Table */}
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/40">
-                    <TableHead className="font-medium">User Name</TableHead>
-                    <TableHead className="font-medium">Email</TableHead>
-                    <TableHead className="font-medium">Phone</TableHead>
-                    <TableHead className="font-medium">
-                      National number
+                    <TableHead className="font-medium text-foreground">
+                      User Name
                     </TableHead>
-                    <TableHead className="text-center font-medium">
+                    <TableHead className="font-medium text-foreground">
+                      Email
+                    </TableHead>
+                    <TableHead className="font-medium text-foreground">
+                      Phone
+                    </TableHead>
+                    <TableHead className="font-medium text-foreground">
+                      National Number
+                    </TableHead>
+                    <TableHead className="text-center font-medium text-foreground">
                       Actions
                     </TableHead>
                   </TableRow>
@@ -188,21 +204,29 @@ const UsersManagement: React.FC = () => {
                 <TableBody>
                   {currentUsers.length > 0 ? (
                     currentUsers.map((u) => (
-                      <TableRow key={u.id} className="hover:bg-muted/20">
+                      <TableRow
+                        key={u.id}
+                        className="hover:bg-muted/20 transition"
+                      >
                         <TableCell className="font-medium">
                           {u.firstName} {u.lastName}
                         </TableCell>
+
                         <TableCell className="text-muted-foreground">
                           {u.email}
                         </TableCell>
+
                         <TableCell className="text-muted-foreground">
                           {u.phone}
                         </TableCell>
+
                         <TableCell className="text-muted-foreground">
                           {u.nationalNumber}
                         </TableCell>
+
                         <TableCell>
                           <div className="flex items-center justify-center gap-2">
+                            {/* View */}
                             <Button
                               variant="ghost"
                               size="icon"
@@ -211,6 +235,8 @@ const UsersManagement: React.FC = () => {
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
+
+                            {/* Edit */}
                             <Button
                               variant="ghost"
                               size="icon"
@@ -219,6 +245,8 @@ const UsersManagement: React.FC = () => {
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
+
+                            {/* Delete */}
                             <Button
                               variant="ghost"
                               size="icon"
@@ -248,9 +276,8 @@ const UsersManagement: React.FC = () => {
             {/* Pagination */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-4 border-t border-border">
               <div className="text-sm text-muted-foreground">
-                {t("showing")} {filteredUsers.length ? startIndex + 1 : 0}{" "}
-                {t("to")} {endIndex} {t("of")} {filteredUsers.length}{" "}
-                {t("users")}
+                Showing {filteredUsers.length ? startIndex + 1 : 0} to{" "}
+                {endIndex} of {filteredUsers.length} users
               </div>
 
               <div className="flex items-center gap-2">
@@ -259,9 +286,8 @@ const UsersManagement: React.FC = () => {
                   size="sm"
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="border-border"
                 >
-                  {t("previous")}
+                  Previous
                 </Button>
 
                 <div className="flex items-center gap-1">
@@ -269,13 +295,13 @@ const UsersManagement: React.FC = () => {
                     (page) => (
                       <Button
                         key={page}
-                        variant={currentPage === page ? "default" : "outline"}
                         size="sm"
+                        variant={currentPage === page ? "default" : "outline"}
                         onClick={() => setCurrentPage(page)}
                         className={
                           currentPage === page
                             ? "bg-primary text-primary-foreground"
-                            : "border-border"
+                            : ""
                         }
                       >
                         {page}
@@ -291,9 +317,8 @@ const UsersManagement: React.FC = () => {
                     setCurrentPage((p) => Math.min(totalPages, p + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className="border-border"
                 >
-                  {t("next")}
+                  Next
                 </Button>
               </div>
             </div>
