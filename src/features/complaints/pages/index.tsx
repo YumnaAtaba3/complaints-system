@@ -1,15 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import ComplaintFilters from "./components/ComplaintFilters";
-import ComplaintsTable from "./components/ComplaintsTable";
-import NoteModal from "./components/NoteModal";
-import StatusDropdown from "./components/StatusDropdown";
-import AssignModal from "./components/AssignModal";
-import ExportButtons from "./components/ExportButtons";
+import ComplaintFilters from "../components/ComplaintFilters";
+import ComplaintsTable from "../components/ComplaintsTable";
+import NoteModal from "../components/NoteModal";
+import StatusDropdown from "../components/StatusDropdown";
+import AssignModal from "../components/AssignModal";
+import ExportButtons from "../components/ExportButtons";
 
-import { type Complaint, type Employee } from "./types";
-import { currentUser } from "./mockUser";
-import { getComplaints, assignComplaint, activityLog } from "./services";
+import { type Complaint, type Employee } from "../types";
+import { currentUser } from "../services/mockUser";
+import { getComplaints, assignComplaint, activityLog } from "../services";
 
 const ComplaintsManagement: React.FC = () => {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
@@ -17,6 +16,7 @@ const ComplaintsManagement: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [unitFilter, setUnitFilter] = useState("all");
+
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(
     null
   );
@@ -26,6 +26,7 @@ const ComplaintsManagement: React.FC = () => {
     show: boolean;
     complaint: Complaint | null;
   }>({ show: false, complaint: null });
+
   const [dropdownComplaint, setDropdownComplaint] = useState<Complaint | null>(
     null
   );
@@ -68,6 +69,7 @@ const ComplaintsManagement: React.FC = () => {
         currentUser.role !== "Admin" ||
         unitFilter === "all" ||
         c.governmentUnitId === unitFilter;
+
       return matchesSearch && matchesStatus && matchesType && matchesUnit;
     });
   }, [visibleComplaints, searchQuery, statusFilter, typeFilter, unitFilter]);
@@ -82,7 +84,8 @@ const ComplaintsManagement: React.FC = () => {
     pageStart + itemsPerPage
   );
 
-  // Handlers
+  // ------------------ Handlers ------------------
+
   const handleView = (c: Complaint) => setSelectedComplaint(c);
 
   const handleOpenNoteModal = (c: Complaint) => {
@@ -92,6 +95,7 @@ const ComplaintsManagement: React.FC = () => {
 
   const handleAddNote = (note: string) => {
     if (!selectedComplaint) return;
+
     const updated: Complaint = {
       ...selectedComplaint,
       notes: [
@@ -105,9 +109,11 @@ const ComplaintsManagement: React.FC = () => {
         }: ${note} at ${new Date().toISOString()}`,
       ],
     };
+
     setComplaints((prev) =>
-      prev.map((p) => (p.id === updated.id ? updated : p))
+      prev.map((c) => (c.id === updated.id ? updated : c))
     );
+
     activityLog.push({
       actionType: "Note Added",
       complaintId: updated.id,
@@ -117,6 +123,7 @@ const ComplaintsManagement: React.FC = () => {
       timestamp: new Date().toISOString(),
       meta: { note },
     });
+
     setShowNoteModal(false);
   };
 
@@ -125,6 +132,7 @@ const ComplaintsManagement: React.FC = () => {
     complaint: Complaint
   ) => {
     e.stopPropagation();
+
     if (
       !(
         currentUser.role === "Admin" ||
@@ -135,20 +143,24 @@ const ComplaintsManagement: React.FC = () => {
       alert("You don't have permission to assign this complaint.");
       return;
     }
+
     setAssignTarget({ show: true, complaint });
   };
 
   const handleConfirmAssign = async (employee: Employee) => {
     if (!assignTarget.complaint) return;
+
     try {
       const updated = await assignComplaint(
         assignTarget.complaint.id,
         employee,
         { id: currentUser.id, role: currentUser.role, name: currentUser.name }
       );
+
       setComplaints((prev) =>
         prev.map((c) => (c.id === updated.id ? updated : c))
       );
+
       setAssignTarget({ show: false, complaint: null });
       alert(`Assigned to ${employee.name}. Notification queued.`);
     } catch (err) {
@@ -156,14 +168,14 @@ const ComplaintsManagement: React.FC = () => {
     }
   };
 
-
   const handleOpenDropdown = (
     e: React.MouseEvent<HTMLDivElement>,
     complaint: Complaint
   ) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const dropdownWidth = 160; 
-    const gap = 4; 
+    const dropdownWidth = 160;
+    const gap = 4;
+
     let left = rect.left + rect.width / 2 - dropdownWidth / 2;
     left = 800;
 
@@ -173,7 +185,9 @@ const ComplaintsManagement: React.FC = () => {
 
   const handleStatusChange = (status: Complaint["status"]) => {
     if (!dropdownComplaint) return;
+
     const now = new Date().toISOString();
+
     const updated: Complaint = {
       ...dropdownComplaint,
       status,
@@ -182,9 +196,11 @@ const ComplaintsManagement: React.FC = () => {
         `Status changed to ${status} by ${currentUser.role} at ${now}`,
       ],
     };
+
     setComplaints((prev) =>
       prev.map((c) => (c.id === updated.id ? updated : c))
     );
+
     activityLog.push({
       actionType: "Status Changed",
       complaintId: updated.id,
@@ -194,17 +210,18 @@ const ComplaintsManagement: React.FC = () => {
       timestamp: now,
       meta: { status },
     });
+
     setDropdownComplaint(null);
     setDropdownPosition(null);
   };
 
   return (
     <div className="container py-6">
-      <div className="flex flex-wrap items-center justify-between mb-4 gap-4">
+      <div className="flex flex-wrap items-center justify-between mb-10 gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className= " ml-3 text-3xl font-bold text-gray-900">Complaints</h1>
+          <h1 className="ml-3 text-3xl font-bold text-gray-900">Complaints</h1>
           <p className="ml-3 text-gray-600 text-sm sm:text-base">
-            Manage and track all complaints submitted by users. 
+            Manage and track all complaints submitted by users.
           </p>
         </div>
 
@@ -227,54 +244,54 @@ const ComplaintsManagement: React.FC = () => {
         showUnitFilter={currentUser.role === "Admin"}
       />
 
-      <Card>
-        <CardContent className="p-0">
-          <ComplaintsTable
-            complaints={currentItems}
-            currentUser={currentUser}
-            onView={handleView}
-            onOpenAssign={handleOpenAssign}
-            onOpenDropdown={handleOpenDropdown}
-            onAddNote={handleOpenNoteModal}
-          />
+      <div className="p-0 overflow-x-auto h-90">
+        <ComplaintsTable
+          complaints={currentItems}
+          currentUser={currentUser}
+          onView={handleView}
+          onOpenAssign={handleOpenAssign}
+          onOpenDropdown={handleOpenDropdown}
+          onAddNote={handleOpenNoteModal}
+        />
+      </div>
+      {/* Government Units Styled Pagination */}
+      <div className="flex items-end justify-between p-4 border-t">
+        <div className="text-sm text-gray-600">
+          Showing {filteredComplaints.length ? pageStart + 1 : 0} to{" "}
+          {Math.min(pageStart + itemsPerPage, filteredComplaints.length)} of{" "}
+          {filteredComplaints.length} complaints
+        </div>
 
-          {/* Pagination */}
-          <div className="flex items-center justify-between p-4 border-t">
-            <span>
-              Showing {filteredComplaints.length ? pageStart + 1 : 0} to{" "}
-              {Math.min(pageStart + itemsPerPage, filteredComplaints.length)} of{" "}
-              {filteredComplaints.length}
-            </span>
-            <div className="flex gap-4 p-5">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="btn "
-              >
-                Previous
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  className={`btn ${currentPage === p ? "btn-primary" : ""}`}
-                  onClick={() => setCurrentPage(p)}
-                >
-                  {p}
-                </button>
-              ))}
-              <button
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
-                disabled={currentPage === totalPages}
-                className="btn"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 rounded border disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              onClick={() => setCurrentPage(p)}
+              className={`px-3 py-1 rounded ${
+                currentPage === p ? "bg-green-900 text-white" : "border"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 rounded border disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      </div>
 
       {showNoteModal && selectedComplaint && (
         <NoteModal
@@ -283,6 +300,7 @@ const ComplaintsManagement: React.FC = () => {
           onAddNote={handleAddNote}
         />
       )}
+
       {assignTarget.show && assignTarget.complaint && (
         <AssignModal
           show={assignTarget.show}
@@ -293,6 +311,7 @@ const ComplaintsManagement: React.FC = () => {
           onConfirm={handleConfirmAssign}
         />
       )}
+
       {dropdownComplaint && dropdownPosition && (
         <StatusDropdown
           position={dropdownPosition}

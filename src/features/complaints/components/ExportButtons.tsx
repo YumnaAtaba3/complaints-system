@@ -49,16 +49,16 @@ const ExportButtons: React.FC<Props> = ({
     <div className="flex gap-2">
       <Button
         onClick={() => exportCSV(allComplaints, "all-complaints", isAdmin)}
-        className="flex gap-2 items-center"
+        className="flex gap-2  px-4 py-2 rounded-xl bg-gradient-to-r from-green-800 to-green-900 text-white font-semibold shadow-md hover:from-green-600 transition  items-center "
       >
-        <FileDown className="h-4 w-4" /> Export All
+        <FileDown className="h-4 w-4 " /> Export All
       </Button>
 
       <Button
         onClick={() =>
           exportCSV(filteredComplaints, "filtered-complaints", isAdmin)
         }
-        className="flex gap-2 items-center"
+        className="flex gap-2  px-4 py-2 rounded-xl bg-gradient-to-r from-green-800 to-green-900 text-white font-semibold shadow-md hover:from-green-600 transition  items-center"
       >
         <FileDown className="h-4 w-4" /> Export Filtered
       </Button>

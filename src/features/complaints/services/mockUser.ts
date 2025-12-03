@@ -1,5 +1,5 @@
 // src/complaints/mockUser.ts
-import { type User } from "./types";
+import { type User } from "../types";
 
 export const currentUser: User = {
   id: "u-001",

@@ -7,7 +7,19 @@ export interface GovernmentUnit {
     ar: string;
     en: string;
   };
+   manager: Manager | null;
+  deleted_at: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
 }
+
+
+export type Manager = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email?: string | null;
+};
+
+

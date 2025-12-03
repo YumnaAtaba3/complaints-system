@@ -20,7 +20,7 @@ const DashboardLayout = () => {
         </div>
 
         <main className="flex-1 flex flex-col gap-4 p-4">
-          <div className="rounded-xl bg-muted/50 p-4">
+          <div className="rounded-xl p-4">
             <Outlet />
           </div>
         </main>

@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   LayoutDashboard,
   FileText,
   BarChart3,
   Users,
   Settings,
+  Building,
 } from "lucide-react";
 
 export const dashboardMenu = (t: any) => [
@@ -29,6 +31,11 @@ export const dashboardSecondaryMenu = (t: any) => [
     title: t("users"),
     url: "/dashboard/users",
     icon: Users,
+  },
+  {
+    title: t("governmentUnits"), 
+    url: "/dashboard/government-units",
+    icon: Building,
   },
   {
     title: t("settings"),

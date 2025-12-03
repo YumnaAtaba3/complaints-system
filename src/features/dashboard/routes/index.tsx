@@ -5,15 +5,18 @@ import ProtectedRoute from "@/shared/components/protected-route";
 
 const DashboardPage = lazy(() => import("../pages/dashboard"));
 const UsersPage = lazy(() => import("@/features/users/pages/index"));
-const Complaints = lazy(() => import("../../complaints"));
+const Complaints = lazy(() => import("../../complaints/pages"));
 const Statistics = lazy(() => import("../pages/statistics"));
 const Settings = lazy(() => import("../pages/settings"));
+const GovernmentUnitsPage = lazy(
+  () => import("../../government-unit/pages")
+); // <-- Add this
 
 const Load = (c: JSX.Element) => (
   <Suspense
     fallback={
       <div className="flex items-center justify-center h-screen ">
-        <div className="  p-8 flex flex-col items-center gap-4">
+        <div className="p-8 flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-green-950 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-gray-700 text-lg">loading...</p>
         </div>
@@ -37,7 +40,9 @@ export const dashboardRoutes = [
       { path: "complaints", element: Load(<Complaints />) },
       { path: "statistics", element: Load(<Statistics />) },
       { path: "users", element: Load(<UsersPage />) },
+      { path: "government-units", element: Load(<GovernmentUnitsPage />) },
       { path: "settings", element: Load(<Settings />) },
+      // <-- Add this route
     ],
   },
 ];

@@ -31,16 +31,16 @@ const NoteModal: React.FC<NoteModalProps> = ({ onClose, onAddNote }) => {
 
         <div className="flex justify-end gap-3">
           <button
-            onClick={handleAdd}
-            className="bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-          >
-            Add
-          </button>
-          <button
             onClick={onClose}
             className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition"
           >
             Cancel
+          </button>
+          <button
+            onClick={handleAdd}
+            className="bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+          >
+            Add
           </button>
         </div>
       </div>

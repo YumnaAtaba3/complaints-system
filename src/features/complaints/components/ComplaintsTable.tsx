@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { FileText, Edit, UserPen } from "lucide-react"; // changed icons
+import { FileText, Edit, UserPen } from "lucide-react"; 
 
 interface ComplaintsTableProps {
   complaints: Complaint[];
@@ -41,7 +41,7 @@ const ComplaintsTable: React.FC<ComplaintsTableProps> = ({
   onAddNote,
 }) => {
   return (
-    <Table>
+    <Table className="min-w-full">
       <TableHeader>
         <TableRow>
           <TableHead>Reference</TableHead>
