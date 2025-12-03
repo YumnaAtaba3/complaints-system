@@ -14,10 +14,12 @@ export function useGovernmentUnits() {
 
   const units = query.data ?? [];
   const loading = query.isLoading;
-
+  const isError = query.isError;
   // Filters & pagination
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "disabled">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "disabled"
+  >("all");
   const [managerFilter, setManagerFilter] = useState<number | "all">("all");
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,19 +38,24 @@ export function useGovernmentUnits() {
         (statusFilter === "disabled" && !u.is_active);
 
       const matchesManager =
-        managerFilter === "all" || (u.manager && u.manager.id === managerFilter);
+        managerFilter === "all" ||
+        (u.manager && u.manager.id === managerFilter);
 
       return matchesSearch && matchesStatus && matchesManager;
     });
   }, [units, searchQuery, statusFilter, managerFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredUnits.length / itemsPerPage));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredUnits.length / itemsPerPage)
+  );
   const pageStart = (currentPage - 1) * itemsPerPage;
   const currentItems = filteredUnits.slice(pageStart, pageStart + itemsPerPage);
 
   return {
     units: currentItems,
     loading,
+    isError,
     filteredUnits,
     totalPages,
     pageStart,
@@ -62,6 +69,6 @@ export function useGovernmentUnits() {
     setItemsPerPage,
     currentPage,
     setCurrentPage,
-    refetchUnits: query.refetch, 
+    refetchUnits: query.refetch,
   };
 }

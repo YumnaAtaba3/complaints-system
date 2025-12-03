@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Select,
   SelectContent,
@@ -7,11 +7,10 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Input } from "@/shared/components/ui/input";
-import { Search, Filter, Loader2 } from "lucide-react"; // Assuming `Loader2` is a spinner icon
+import { Search, Filter, Loader2 } from "lucide-react";
 import { useGovernmentUnits } from "@/features/government-unit/services/queries";
 import { useTranslation } from "react-i18next";
 
-// Filters Component
 interface UsersFiltersProps {
   searchQuery: string;
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
@@ -28,14 +27,7 @@ const UsersFilters: React.FC<UsersFiltersProps> = ({
   const { t } = useTranslation();
 
   // Fetch the government units
-  const { data: governmentUnits, isLoading, isError } = useGovernmentUnits();
-
-  // Default to 'all' if government units exist
-  useEffect(() => {
-    if (governmentUnits?.length) {
-      setSelectedGovernmentUnit("all");
-    }
-  }, [governmentUnits, setSelectedGovernmentUnit]);
+  const { units, loading, isError } = useGovernmentUnits();
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full py-4">
@@ -56,11 +48,12 @@ const UsersFilters: React.FC<UsersFiltersProps> = ({
         <Select
           value={selectedGovernmentUnit}
           onValueChange={setSelectedGovernmentUnit}
+          disabled={loading || isError}
         >
           <SelectTrigger className="w-full bg-background text-foreground border-border">
             <div className="flex items-center">
               <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
-              {isLoading && (
+              {loading && (
                 <Loader2 className="animate-spin h-4 w-4 text-muted-foreground" />
               )}
             </div>
@@ -68,7 +61,6 @@ const UsersFilters: React.FC<UsersFiltersProps> = ({
           </SelectTrigger>
 
           <SelectContent className="bg-background text-foreground border-border">
-            {/* If error, show an empty dropdown */}
             {isError ? (
               <SelectItem value="" disabled>
                 {t("noUnitsAvailable")}
@@ -76,10 +68,9 @@ const UsersFilters: React.FC<UsersFiltersProps> = ({
             ) : (
               <>
                 <SelectItem value="all">{t("allUnits")}</SelectItem>
-                {governmentUnits?.map((unit) => (
+                {units?.map((unit) => (
                   <SelectItem key={unit.id} value={unit.id.toString()}>
-                    {/* Access translation safely */}
-                    {unit.name_translation[
+                    {unit.name_translation?.[
                       t("lang") as keyof typeof unit.name_translation
                     ] || unit.name}
                   </SelectItem>
