@@ -1,4 +1,3 @@
-// src/features/users/components/UsersFilters.tsx
 import React, { useEffect } from "react";
 import {
   Select,
@@ -8,7 +7,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Input } from "@/shared/components/ui/input";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Loader2 } from "lucide-react"; // Assuming `Loader2` is a spinner icon
 import { useGovernmentUnits } from "@/features/government-unit/services/queries";
 import { useTranslation } from "react-i18next";
 
@@ -54,32 +53,41 @@ const UsersFilters: React.FC<UsersFiltersProps> = ({
 
       {/* Government Unit Filter */}
       <div className="w-full sm:w-[220px]">
-        {isLoading ? (
-          <div>Loading units...</div>
-        ) : isError ? (
-          <div>Error loading units</div>
-        ) : (
-          <Select
-            value={selectedGovernmentUnit}
-            onValueChange={setSelectedGovernmentUnit}
-          >
-            <SelectTrigger className="w-full bg-background text-foreground border-border">
+        <Select
+          value={selectedGovernmentUnit}
+          onValueChange={setSelectedGovernmentUnit}
+        >
+          <SelectTrigger className="w-full bg-background text-foreground border-border">
+            <div className="flex items-center">
               <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
-              <SelectValue placeholder={t("filterByUnit")} />
-            </SelectTrigger>
-            <SelectContent className="bg-background text-foreground border-border">
-              <SelectItem value="all">{t("allUnits")}</SelectItem>
-              {governmentUnits?.map((unit) => (
-                <SelectItem key={unit.id} value={unit.id.toString()}>
-                  {/* Access translation safely */}
-                  {unit.name_translation[
-                    t("lang") as keyof typeof unit.name_translation
-                  ] || unit.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+              {isLoading && (
+                <Loader2 className="animate-spin h-4 w-4 text-muted-foreground" />
+              )}
+            </div>
+            <SelectValue placeholder={t("filterByUnit")} />
+          </SelectTrigger>
+
+          <SelectContent className="bg-background text-foreground border-border">
+            {/* If error, show an empty dropdown */}
+            {isError ? (
+              <SelectItem value="" disabled>
+                {t("noUnitsAvailable")}
+              </SelectItem>
+            ) : (
+              <>
+                <SelectItem value="all">{t("allUnits")}</SelectItem>
+                {governmentUnits?.map((unit) => (
+                  <SelectItem key={unit.id} value={unit.id.toString()}>
+                    {/* Access translation safely */}
+                    {unit.name_translation[
+                      t("lang") as keyof typeof unit.name_translation
+                    ] || unit.name}
+                  </SelectItem>
+                ))}
+              </>
+            )}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
