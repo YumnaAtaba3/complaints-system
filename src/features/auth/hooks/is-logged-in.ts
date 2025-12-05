@@ -1,10 +1,10 @@
-import { useAuthToken } from "./auth-state";
+import { useAuth } from "../context/AuthContext";
 
 export function useIsLoggedIn() {
-  const token = useAuthToken();
+  const { token } = useAuth();
 
-  
   const isHydrated = token !== undefined;
+
   return {
     isLoggedIn: Boolean(token),
     isLoading: !isHydrated,
