@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -7,13 +8,14 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import { useLoginMutation } from "../services/mutations";
 import { loginSchema, type LoginFormValues } from "../config";
-
-import { setToken } from "./auth-state";
-import { sessionUserStorage, userStorage } from "../storage";
+import { useAuth } from "../context/AuthContext";
 
 export function useLoginForm() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  // From AuthContext
+  const { login: authLogin } = useAuth();
 
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -26,6 +28,7 @@ export function useLoginForm() {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
+  // Form validation
   const {
     control,
     handleSubmit,
@@ -40,48 +43,34 @@ export function useLoginForm() {
     },
   });
 
-  const { mutateAsync: login, isLoading: isPending } = useLoginMutation();
+  const { mutateAsync: loginRequest, isLoading: isPending } = useLoginMutation();
 
+  // 🔥 FIXED + CLEAN LOGIN FUNCTION
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      const result = await login({
-         email: data.email,
-    password: data.password,
-    rememberMe: data.rememberMe,
+      const result = await loginRequest({
+        email: data.email,
+        password: data.password,
       });
 
-      if (!result || !result.token) {
+      if (!result?.token) {
         setSnackbar({
           open: true,
-          message: result?.message || t("loginFailed") || "Login failed.",
+          message: result?.message || "Login failed.",
           severity: "error",
         });
         return;
       }
 
-  
-console.log("login result.token", result.token, "rememberMe", data.rememberMe);
-setToken(result.token, data.rememberMe);
-console.log("after setToken local:", userStorage.get(), "session:", sessionUserStorage.get());
+      // Set token by AuthContext
+      authLogin(result.token, data.rememberMe);
 
+      // Redirect user
+      navigate("/dashboard", { replace: true });
 
-
-      setSnackbar({
-        open: true,
-        message: result?.message || t("loginSuccess") || "Login successful!",
-        severity: "success",
-      });
-
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1500);
     } catch (error: any) {
       const msg =
         error?.response?.data?.message ||
-        error?.response?.data?.errors?.email?.[0] ||
-        error?.response?.data?.errors?.password?.[0] ||
-        error?.message ||
-        t("loginFailed") ||
         "Login failed. Please check your credentials.";
 
       setSnackbar({

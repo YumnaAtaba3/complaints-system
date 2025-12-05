@@ -9,6 +9,7 @@ import { authRoutes } from "../features/auth/routes";
 import { dashboardRoutes } from "../features/dashboard/routes";
 import { AuthRedirect } from "@/features/auth/hooks/AuthRedirect";
 import { AuthGuard } from "@/features/auth/guards/auth-guard";
+import { AuthProvider } from "@/features/auth/context/AuthContext";
 
 const NotFoundPage = lazy(() => import("../shared/pages/not-found"));
 
@@ -53,5 +54,9 @@ const routes = [
 const router = createBrowserRouter(routes);
 
 export const AppRouterProvider: React.FC = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 };

@@ -1,40 +1,25 @@
-export const userStorageKey = "token";
-export const sessionUserStorageKey = "session_token";
+const LOCAL_KEY = "auth_token_local";
+const SESSION_KEY = "auth_token_session";
 
-let internalToken: string | null = null;
-const listeners = new Set<() => void>();
-
-export function setToken(token: string | null, rememberMe?: boolean) {
-  if (typeof window === "undefined") return;
-
-  if (token) {
-    if (rememberMe) {
-      localStorage.setItem(userStorageKey, token);
-      sessionStorage.removeItem(sessionUserStorageKey);
-    } else {
-      sessionStorage.setItem(sessionUserStorageKey, token);
-      localStorage.removeItem(userStorageKey);
-    }
+export function setToken(token: string, remember: boolean) {
+  if (remember) {
+    localStorage.setItem(LOCAL_KEY, token);
+    sessionStorage.removeItem(SESSION_KEY);
   } else {
-    localStorage.removeItem(userStorageKey);
-    sessionStorage.removeItem(sessionUserStorageKey);
+    sessionStorage.setItem(SESSION_KEY, token);
+    localStorage.removeItem(LOCAL_KEY);
   }
-
-  internalToken = token;
-  listeners.forEach((l) => l());
 }
 
 export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return internalToken ?? localStorage.getItem(userStorageKey) ?? sessionStorage.getItem(sessionUserStorageKey);
+  return (
+    localStorage.getItem(LOCAL_KEY) ||
+    sessionStorage.getItem(SESSION_KEY) ||
+    null
+  );
 }
 
-export function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
-
-import { useSyncExternalStore } from "react";
-export function useAuthToken() {
-  return useSyncExternalStore(subscribe, () => getToken());
+export function clearToken() {
+  localStorage.removeItem(LOCAL_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
 }

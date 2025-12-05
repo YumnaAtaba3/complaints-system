@@ -9,6 +9,7 @@ import ExportButtons from "../components/ExportButtons";
 import { type Complaint, type Employee } from "../types";
 import { currentUser } from "../services/mockUser";
 import { getComplaints, assignComplaint, activityLog } from "../services";
+import ComplaintsPagination from "../components/ComplaintsPagination";
 
 const ComplaintsManagement: React.FC = () => {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
@@ -219,12 +220,15 @@ const ComplaintsManagement: React.FC = () => {
     <div className="container py-6">
       <div className="flex flex-wrap items-center justify-between mb-10 gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="ml-3 text-3xl font-bold text-gray-900">Complaints</h1>
-          <p className="ml-3 text-gray-600 text-sm sm:text-base">
+          <h1 className="ml-3 text-foreground text-3xl font-bold">
+            Complaints
+          </h1>
+          <p className="ml-3 text-muted-foreground text-sm sm:text-base">
             Manage and track all complaints submitted by users.
           </p>
         </div>
 
+        {/* Export Buttons always gold */}
         <ExportButtons
           allComplaints={complaints}
           filteredComplaints={filteredComplaints}
@@ -255,43 +259,15 @@ const ComplaintsManagement: React.FC = () => {
         />
       </div>
       {/* Government Units Styled Pagination */}
-      <div className="flex items-end justify-between p-4 border-t">
-        <div className="text-sm text-gray-600">
-          Showing {filteredComplaints.length ? pageStart + 1 : 0} to{" "}
-          {Math.min(pageStart + itemsPerPage, filteredComplaints.length)} of{" "}
-          {filteredComplaints.length} complaints
-        </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 rounded border disabled:opacity-50"
-          >
-            Previous
-          </button>
-
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              onClick={() => setCurrentPage(p)}
-              className={`px-3 py-1 rounded ${
-                currentPage === p ? "bg-green-900 text-white" : "border"
-              }`}
-            >
-              {p}
-            </button>
-          ))}
-
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded border disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      </div>
+      <ComplaintsPagination
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        totalPages={totalPages}
+        startIndex={pageStart}
+        endIndex={Math.min(pageStart + itemsPerPage, filteredComplaints.length)}
+        filteredComplaintsLength={filteredComplaints.length}
+      />
 
       {showNoteModal && selectedComplaint && (
         <NoteModal

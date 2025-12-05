@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { FileText, Edit, UserPen } from "lucide-react"; 
+import { FileText, Edit, UserPen } from "lucide-react";
 
 interface ComplaintsTableProps {
   complaints: Complaint[];
@@ -32,6 +32,13 @@ interface ComplaintsTableProps {
   onAddNote: (complaint: Complaint) => void;
 }
 
+const statusColors: Record<string, string> = {
+  Open: "bg-green-500",
+  Assigned: "bg-indigo-500",
+  "In Progress": "bg-yellow-500",
+  Closed: "bg-gray-500",
+};
+
 const ComplaintsTable: React.FC<ComplaintsTableProps> = ({
   complaints,
   currentUser,
@@ -43,37 +50,53 @@ const ComplaintsTable: React.FC<ComplaintsTableProps> = ({
   return (
     <Table className="min-w-full">
       <TableHeader>
-        <TableRow>
-          <TableHead>Reference</TableHead>
-          <TableHead>Title</TableHead>
-          <TableHead>User</TableHead>
+        <TableRow className="bg-muted/40">
+          <TableHead className="font-medium text-foreground">
+            Reference
+          </TableHead>
+          <TableHead className="font-medium text-foreground">Title</TableHead>
+          <TableHead className="font-medium text-foreground">User</TableHead>
           {currentUser.role === "Admin" && (
-            <TableHead>Government Unit</TableHead>
+            <TableHead className="font-medium text-foreground">
+              Government Unit
+            </TableHead>
           )}
-          <TableHead>Type</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-center">Actions</TableHead>
+          <TableHead className="font-medium text-foreground">Type</TableHead>
+          <TableHead className="font-medium text-foreground text-center">
+            Status
+          </TableHead>
+          <TableHead className="font-medium text-foreground text-center">
+            Actions
+          </TableHead>
         </TableRow>
       </TableHeader>
 
       <TableBody>
         {complaints.map((c) => (
-          <TableRow key={c.id} className="hover:bg-gray-50">
-            <TableCell className="text-left">{c.referenceNumber}</TableCell>
-            <TableCell className="text-left">{c.title}</TableCell>
-            <TableCell className="text-left">{c.userName}</TableCell>
+          <TableRow key={c.id} className="hover:bg-muted/20 transition-colors">
+            <TableCell className="text-left font-medium text-foreground">
+              {c.referenceNumber}
+            </TableCell>
+            <TableCell className="text-left text-muted-foreground">
+              {c.title}
+            </TableCell>
+            <TableCell className="text-left text-muted-foreground">
+              {c.userName}
+            </TableCell>
             {currentUser.role === "Admin" && (
-              <TableCell className="text-left">{c.governmentUnit}</TableCell>
+              <TableCell className="text-left text-muted-foreground">
+                {c.governmentUnit}
+              </TableCell>
             )}
-            <TableCell className="text-left">{c.type}</TableCell>
+            <TableCell className="text-left text-muted-foreground">
+              {c.type}
+            </TableCell>
 
-            <TableCell className="text-center relative">
+            <TableCell className="text-center">
               <div
-                className={`px-3 py-1 rounded-full text-white text-sm font-semibold cursor-pointer
-                  ${c.status === "Open" ? "bg-green-500" : ""}
-                  ${c.status === "Assigned" ? "bg-indigo-500" : ""}
-                  ${c.status === "In Progress" ? "bg-yellow-500" : ""}
-                  ${c.status === "Closed" ? "bg-gray-500" : ""}`}
+                className={`px-3 py-1 rounded-full text-white text-sm font-semibold cursor-pointer ${
+                  statusColors[c.status]
+                }`}
                 onClick={(e) => onOpenDropdown(e, c)}
               >
                 {c.status}
@@ -87,8 +110,9 @@ const ComplaintsTable: React.FC<ComplaintsTableProps> = ({
                 size="icon"
                 onClick={() => onView(c)}
                 title="View Complaint"
+                className="text-primary hover:bg-primary/10"
               >
-                <FileText className="h-6 w-6" />
+                <FileText className="h-5 w-5" />
               </Button>
 
               {/* Add Note */}
@@ -97,8 +121,9 @@ const ComplaintsTable: React.FC<ComplaintsTableProps> = ({
                 size="icon"
                 onClick={() => onAddNote(c)}
                 title="Add Note"
+                className="text-gold hover:bg-gold/10"
               >
-                <Edit className="h-6 w-6" />
+                <Edit className="h-5 w-5" />
               </Button>
 
               {/* Assign */}
@@ -107,10 +132,11 @@ const ComplaintsTable: React.FC<ComplaintsTableProps> = ({
                   c.governmentUnitId === currentUser.governmentUnitId)) && (
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon"
                   onClick={(e) => onOpenAssign(e as any, c)}
+                  className="text-indigo-500 hover:bg-indigo-100"
                 >
-                  <UserPen />
+                  <UserPen className="h-5 w-5" />
                 </Button>
               )}
             </TableCell>
