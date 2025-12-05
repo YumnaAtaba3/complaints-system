@@ -99,10 +99,6 @@ export const LoginForm: React.FC = () => {
             />
             <Label className="text-sm cursor-pointer">Remember Me</Label>
           </div>
-
-          <Button type="button" className="px-0 text-[#BDA575]">
-            Forgot Password
-          </Button>
         </div>
 
         {/* SUBMIT */}
@@ -129,4 +125,3 @@ export const LoginForm: React.FC = () => {
     </div>
   );
 };
-

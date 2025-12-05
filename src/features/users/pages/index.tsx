@@ -1,12 +1,16 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
+
 import { Button } from "@/shared/components/ui/button";
 import UsersTable from "../components/users-table";
 import UsersFilters from "../components/users-filter";
 import UsersPagination from "../components/users-pagination";
-import { useUsers } from "@/features/users/services/queries"; // Import the useUsers hook
-import { Loader2 } from "lucide-react"; // Loading spinner icon
+
+import { useUsers } from "@/features/users/services/queries";
+
+// 👇 Add the dialog import
+import AddUserDialog from "../components/add-user-modal";
 
 const UsersPage: React.FC = () => {
   const { t } = useTranslation();
@@ -18,6 +22,9 @@ const UsersPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // 👇 Add User Dialog State
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+
   // Fetch users with the useUsers hook
   const { data, isLoading, isError } = useUsers({
     search: searchQuery,
@@ -27,23 +34,24 @@ const UsersPage: React.FC = () => {
     perPage: itemsPerPage,
   });
 
-  // If data is undefined, fallback to empty array and 0 pagination total
   const users = data?.users || [];
   const totalItems = data?.pagination?.total || 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  // Handle pagination data
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(users.length, startIndex + itemsPerPage);
 
   return (
     <div className="container py-6">
+      {/* Header Section */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
         <h1 className="text-3xl font-extrabold text-gold">
           {t("usersManagement")}
         </h1>
+
+        {/* 👇 This button now opens the Add User Dialog */}
         <Button
-          onClick={() => console.log("add user")}
+          onClick={() => setOpenAddDialog(true)}
           className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Plus className="h-4 w-4" />
@@ -51,8 +59,8 @@ const UsersPage: React.FC = () => {
         </Button>
       </div>
 
+      {/* Main Card */}
       <div className="card">
-        {/* Filters Component */}
         <UsersFilters
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -60,7 +68,6 @@ const UsersPage: React.FC = () => {
           setSelectedGovernmentUnit={setSelectedGovernmentUnit}
         />
 
-        {/* Display Loading Spinner or Error Message */}
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
             <Loader2 className="animate-spin h-12 w-12 text-muted-foreground" />
@@ -68,11 +75,9 @@ const UsersPage: React.FC = () => {
         ) : isError ? (
           <div className="text-center text-red-500">Error fetching users</div>
         ) : (
-          // Display Users Table
           <UsersTable users={users} />
         )}
 
-        {/* Pagination Component */}
         <UsersPagination
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
@@ -82,6 +87,9 @@ const UsersPage: React.FC = () => {
           filteredUsersLength={users.length}
         />
       </div>
+
+      {/* 👇 Add User Dialog Component */}
+      <AddUserDialog open={openAddDialog} onOpenChange={setOpenAddDialog} />
     </div>
   );
 };
