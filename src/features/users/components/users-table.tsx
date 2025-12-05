@@ -10,13 +10,18 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 
+// Updated the User interface to reflect API response
 interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
+  id: number;
+  first_name: string;
+  last_name: string;
   email: string;
-  phone: string;
-  nationalNumber: string;
+  phone: string | null;
+  national_number: string | null;
+  government_unit: {
+    id: number;
+    name: string;
+  };
 }
 
 interface UsersTableProps {
@@ -46,12 +51,12 @@ const UsersTable: React.FC<UsersTableProps> = ({ users }) => {
           users.map((u) => (
             <TableRow key={u.id} className="hover:bg-muted/20 transition">
               <TableCell className="font-medium">
-                {u.firstName} {u.lastName}
+                {u.first_name} {u.last_name}
               </TableCell>
               <TableCell className="text-muted-foreground">{u.email}</TableCell>
               <TableCell className="text-muted-foreground">{u.phone}</TableCell>
               <TableCell className="text-muted-foreground">
-                {u.nationalNumber}
+                {u.national_number}
               </TableCell>
               <TableCell>
                 <div className="flex items-center justify-center gap-2">

@@ -5,66 +5,36 @@ import { Button } from "@/shared/components/ui/button";
 import UsersTable from "../components/users-table";
 import UsersFilters from "../components/users-filter";
 import UsersPagination from "../components/users-pagination";
-
-const mockUsers = [
-  {
-    id: "1",
-    firstName: "أحمد",
-    lastName: "محمد",
-    email: "ahmed.mohamed@example.com",
-    phone: "+966501234567",
-    nationalNumber: "1234567890",
-    governmentUnitId: 1,
-  },
-  {
-    id: "2",
-    firstName: "فاطمة",
-    lastName: "علي",
-    email: "fatima.ali@example.com",
-    phone: "+966509876543",
-    nationalNumber: "0987654321",
-    governmentUnitId: 2,
-  },
-  // More mock users...
-];
+import { useUsers } from "@/features/users/services/queries"; // Import the useUsers hook
+import { Loader2 } from "lucide-react"; // Loading spinner icon
 
 const UsersPage: React.FC = () => {
   const { t } = useTranslation();
 
+  // States for filters and pagination
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGovernmentUnit, setSelectedGovernmentUnit] =
     useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
-
   const itemsPerPage = 10;
 
-  const filteredUsers = useMemo(() => {
-    return mockUsers.filter((user) => {
-      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
-      const q = searchQuery.trim().toLowerCase();
+  // Fetch users with the useUsers hook
+  const { data, isLoading, isError } = useUsers({
+    search: searchQuery,
+    governmentUnitId:
+      selectedGovernmentUnit === "all" ? "" : selectedGovernmentUnit,
+    page: currentPage,
+    perPage: itemsPerPage,
+  });
 
-      const matchesSearch =
-        q === "" ||
-        fullName.includes(q) ||
-        user.email.toLowerCase().includes(q) ||
-        user.phone.includes(q) ||
-        user.nationalNumber.includes(q);
+  // If data is undefined, fallback to empty array and 0 pagination total
+  const users = data?.users || [];
+  const totalItems = data?.pagination?.total || 0;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-      const matchesUnit =
-        selectedGovernmentUnit === "all" ||
-        user.governmentUnitId.toString() === selectedGovernmentUnit;
-
-      return matchesSearch && matchesUnit;
-    });
-  }, [searchQuery, selectedGovernmentUnit]);
-
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredUsers.length / itemsPerPage)
-  );
+  // Handle pagination data
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(filteredUsers.length, startIndex + itemsPerPage);
-  const currentUsers = filteredUsers.slice(startIndex, endIndex);
+  const endIndex = Math.min(users.length, startIndex + itemsPerPage);
 
   return (
     <div className="container py-6">
@@ -82,6 +52,7 @@ const UsersPage: React.FC = () => {
       </div>
 
       <div className="card">
+        {/* Filters Component */}
         <UsersFilters
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -89,15 +60,26 @@ const UsersPage: React.FC = () => {
           setSelectedGovernmentUnit={setSelectedGovernmentUnit}
         />
 
-        <UsersTable users={currentUsers} />
+        {/* Display Loading Spinner or Error Message */}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="animate-spin h-12 w-12 text-muted-foreground" />
+          </div>
+        ) : isError ? (
+          <div className="text-center text-red-500">Error fetching users</div>
+        ) : (
+          // Display Users Table
+          <UsersTable users={users} />
+        )}
 
+        {/* Pagination Component */}
         <UsersPagination
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           totalPages={totalPages}
           startIndex={startIndex}
           endIndex={endIndex}
-          filteredUsersLength={filteredUsers.length}
+          filteredUsersLength={users.length}
         />
       </div>
     </div>
