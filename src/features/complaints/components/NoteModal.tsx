@@ -26,7 +26,7 @@ const NoteModal: React.FC<NoteModalProps> = ({ onClose, onAddNote }) => {
           placeholder="Type your note here..."
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-800 transition resize-none"
+          className="w-full h-32 p-3 border border-black rounded-lg focus:outline-none focus:ring-2  transition resize-none"
         />
 
         <div className="flex justify-end gap-3">
@@ -38,7 +38,7 @@ const NoteModal: React.FC<NoteModalProps> = ({ onClose, onAddNote }) => {
           </button>
           <button
             onClick={handleAdd}
-            className="bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+            className="bg-gold text-white px-4 py-2 rounded-lg hover:bg-gold/90 transition"
           >
             Add
           </button>

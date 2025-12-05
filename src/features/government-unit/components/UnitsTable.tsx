@@ -1,4 +1,6 @@
 import React from "react";
+import { Button } from "@/shared/components/ui/button";
+import { Edit,  Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -8,115 +10,105 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { type GovernmentUnit as Unit } from "../types";
-import { UnitActions } from "./UnitActions"; 
 
-type Props = {
+interface UnitsTableProps {
   units: Unit[];
-  onEdit: (u: Unit) => void;
-  onAssign: (u: Unit) => void;
-  onToggleActive: (u: Unit) => void;
-  loading?: boolean;
-  containerHeight?: string;
-};
+  onEdit: (unit: Unit) => void;
+  onToggleActive: (unit: Unit) => void;
+}
 
-export const UnitsTable: React.FC<Props> = ({
+export const UnitsTable: React.FC<UnitsTableProps> = ({
   units,
   onEdit,
-  onAssign,
   onToggleActive,
-  loading = false,
-  containerHeight = "h-110",
-}) => (
-  <div className={`relative ${containerHeight} overflow-auto`}>
-    <Table className="min-w-full">
+}) => {
+  return (
+    <Table>
       <TableHeader>
-        <TableRow>
-          <TableHead>English Name</TableHead>
-          <TableHead className="text-left">Created</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Manager</TableHead>
-          <TableHead className="text-center">Actions</TableHead>
+        <TableRow className="bg-muted/40 dark:bg-muted/20">
+          <TableHead className="font-medium text-foreground">
+            Unit Name
+          </TableHead>
+          <TableHead className="font-medium text-foreground">Created</TableHead>
+          <TableHead className="font-medium text-foreground">Status</TableHead>
+          <TableHead className="font-medium text-foreground">Manager</TableHead>
+          <TableHead className="text-center font-medium text-foreground">
+            Actions
+          </TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody>
-        {units.map((u) => (
-          <TableRow key={u.id} className="hover:bg-gray-50">
-            <TableCell className="text-left">
-              <div className="font-medium">
-                {u.name_translation?.en ?? u.name}
-              </div>
-              <div className="text-xs text-gray-500">
-                {u.name_translation?.ar}
-              </div>
-            </TableCell>
-            <TableCell className="text-left text-sm text-gray-600">
-              {new Date(u.created_at).toLocaleString()}
-            </TableCell>
-            <TableCell>
-              {u.is_active ? (
-                <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">
-                  Active
-                </span>
-              ) : (
-                <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">
-                  Disabled
-                </span>
-              )}
-            </TableCell>
-            <TableCell>
-              {u.manager
-                ? `${u.manager.first_name} ${u.manager.last_name}`
-                : "— No Manager"}
-            </TableCell>
-            <TableCell className="text-center">
-              <UnitActions
-                unit={u}
-                onEdit={onEdit}
-                onAssign={onAssign}
-                onToggleActive={onToggleActive}
-              />
-            </TableCell>
-          </TableRow>
-        ))}
 
-        {!loading && units.length === 0 && (
-          <TableRow>
-            <TableCell colSpan={5}>
-              <div
-                className={`flex items-center justify-center ${containerHeight}`}
-              >
-                <div className="text-center text-gray-500">
-                  <div className="text-lg font-medium">No units found</div>
-                  <div className="text-sm text-gray-400">
-                    Try adjusting your filters or search.
+      <TableBody>
+        {units.length > 0 ? (
+          units.map((unit) => (
+            <TableRow
+              key={unit.id}
+              className="hover:bg-muted/20 dark:hover:bg-muted/30 transition"
+            >
+              <TableCell className="font-medium">
+                {unit.name_translation?.en ?? unit.name}
+                {unit.name_translation?.ar && (
+                  <div className="text-xs text-muted-foreground dark:text-muted-foreground">
+                    {unit.name_translation.ar}
                   </div>
-                </div>
-              </div>
+                )}
+              </TableCell>
+
+              <TableCell className="text-muted-foreground dark:text-muted-foreground">
+                {new Date(unit.created_at).toLocaleString()}
+              </TableCell>
+
+              <TableCell>
+                {unit.is_active ? (
+                  <span className="px-2 py-1 text-xs bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-300 rounded-full">
+                    Active
+                  </span>
+                ) : (
+                  <span className="px-2 py-1 text-xs bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-300 rounded-full">
+                    Disabled
+                  </span>
+                )}
+              </TableCell>
+
+              <TableCell className="text-muted-foreground dark:text-muted-foreground">
+                {unit.manager
+                  ? `${unit.manager.first_name} ${unit.manager.last_name}`
+                  : "— No Manager"}
+              </TableCell>
+
+              <TableCell className="flex justify-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-gold hover:bg-gold/10"
+                  onClick={() => onEdit(unit)}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                  onClick={() => onToggleActive(unit)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell
+              colSpan={5}
+              className="py-8 text-center text-muted-foreground dark:text-muted-foreground"
+            >
+              No units found
             </TableCell>
           </TableRow>
         )}
       </TableBody>
     </Table>
+  );
+};
 
-    {loading && (
-      <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-10">
-        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-      </div>
-    )}
-
-    <style>{`
-      .loader {
-        border-top-color: #16a34a;
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-    `}</style>
-  </div>
-);
+export default UnitsTable;

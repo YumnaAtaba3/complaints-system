@@ -34,9 +34,10 @@ const ComplaintFilters: React.FC<FiltersProps> = ({
   showUnitFilter,
 }) => {
   return (
-    <div className="flex gap-4 mb-4 flex-wrap items-center">
+    <div className="flex gap-4 mb-6 flex-wrap items-center">
+      {/* Search Input */}
       <div className="relative w-[300px]">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search complaints..."
           value={searchQuery}
@@ -45,11 +46,12 @@ const ComplaintFilters: React.FC<FiltersProps> = ({
         />
       </div>
 
+      {/* Status Filter */}
       <Select value={statusFilter} onValueChange={onStatusChange}>
-        <SelectTrigger className="w-[180px] bg-white">
+        <SelectTrigger className="w-[180px] bg-background">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
-        <SelectContent className="bg-white">
+        <SelectContent className="bg-background [&>div>div]:hover:bg-muted/10">
           <SelectItem value="all">All Statuses</SelectItem>
           <SelectItem value="Open">Open</SelectItem>
           <SelectItem value="Assigned">Assigned</SelectItem>
@@ -58,11 +60,12 @@ const ComplaintFilters: React.FC<FiltersProps> = ({
         </SelectContent>
       </Select>
 
+      {/* Type Filter */}
       <Select value={typeFilter} onValueChange={onTypeChange}>
-        <SelectTrigger className="w-[180px] bg-white">
+        <SelectTrigger className="w-[180px] bg-background">
           <SelectValue placeholder="Type" />
         </SelectTrigger>
-        <SelectContent className="bg-white">
+        <SelectContent className="bg-background [&>div>div]:hover:bg-muted/10">
           <SelectItem value="all">All Types</SelectItem>
           <SelectItem value="Service">Service</SelectItem>
           <SelectItem value="Product">Product</SelectItem>
@@ -70,12 +73,13 @@ const ComplaintFilters: React.FC<FiltersProps> = ({
         </SelectContent>
       </Select>
 
+      {/* Government Unit Filter */}
       {showUnitFilter && (
         <Select value={unitFilter} onValueChange={onUnitChange}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-[200px] bg-background">
             <SelectValue placeholder="Government Unit" />
           </SelectTrigger>
-          <SelectContent className="bg-white">
+          <SelectContent className="bg-background [&>div>div]:hover:bg-muted/10">
             <SelectItem value="all">All Units</SelectItem>
             <SelectItem value="gov-1">Unit A</SelectItem>
             <SelectItem value="gov-2">Unit B</SelectItem>
