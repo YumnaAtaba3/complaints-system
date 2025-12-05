@@ -47,5 +47,12 @@
   "of": "of",
   "usersLower": "users",
 
-  "noUsersFound": "No users found"
+  "noUsersFound": "No users found",
+
+  "areYouSure": "Are you sure?",
+  "softDeleteWarning": "This action will deactivate the user. You can restore the user later.",
+  "permanentDeleteWarning": "This action will permanently delete the admin user and cannot be undone.",
+  "delete": "Delete",
+  "deletePermanently": "Delete Permanently",
+  "cancel": "Cancel"
 }

@@ -47,5 +47,12 @@
   "of": "من",
   "usersLower": "المستخدمين",
 
-  "noUsersFound": "لم يتم العثور على مستخدمين"
+  "noUsersFound": "لم يتم العثور على مستخدمين",
+
+  "areYouSure": "هل أنت متأكد؟",
+  "softDeleteWarning": "سيتم تعطيل المستخدم. يمكنك استعادته لاحقاً.",
+  "permanentDeleteWarning": "سيتم حذف المستخدم (المدير) نهائيًا ولا يمكن التراجع عن هذا الإجراء.",
+  "delete": "حذف",
+  "deletePermanently": "حذف نهائي",
+  "cancel": "إلغاء"
 }
