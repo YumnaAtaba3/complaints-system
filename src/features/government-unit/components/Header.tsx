@@ -18,7 +18,7 @@ export const Header: React.FC<Props> = ({ onAdd }) => (
     </div>
     <Button
       onClick={onAdd}
-      className="flex gap-2 px-4 py-4 rounded-xl bg-gradient-to-r from-green-800 to-green-900 text-white font-semibold shadow-md hover:from-green-600 transition items-center"
+      className="flex gap-2 px-4 py-4 rounded-xl bg-primary-foreground text-white font-semibold shadow-md hover:from-green-600 transition items-center"
     >
       + Add Government Units
     </Button>

@@ -25,7 +25,7 @@ export const UnitsTable: React.FC<Props> = ({
   onAssign,
   onToggleActive,
   loading = false,
-  containerHeight = "h-96",
+  containerHeight = "h-110",
 }) => (
   <div className={`relative ${containerHeight} overflow-auto`}>
     <Table className="min-w-full">
