@@ -27,6 +27,8 @@
   "darkMode": "الوضع الداكن",
 
   "usersManagement": "إدارة المستخدمين",
+  "users": "المستخدمون",
+  "deletedAccounts": "الحسابات المحذوفة",
   "addUser": "إضافة مستخدم",
   "searchUsers": "بحث عن المستخدمين",
   "filterByUnit": "تصفية حسب الوحدة",

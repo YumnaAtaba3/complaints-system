@@ -1,26 +1,28 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Users, Trash2 } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
+
 import UsersTable from "../components/users-table";
 import UsersFilters from "../components/users-filter";
 import UsersPagination from "../components/users-pagination";
 
 import { useUsers } from "@/features/users/services/queries";
-
-// Shared UI
 import UserDialog from "../components/user-dialog";
 import ConfirmDialog from "@/shared/components/ui/confirm-dialog";
 
-// Delete mutations
 import {
   useDeleteUser,
   usePermanentDeleteUser,
 } from "@/features/users/services/mutations";
+import { cn } from "@/lib/utils";
 
 const UsersPage: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGovernmentUnit, setSelectedGovernmentUnit] =
@@ -28,18 +30,15 @@ const UsersPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Add/Update dialog states
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
 
-  // Delete dialog states
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedUserForDelete, setSelectedUserForDelete] = useState<
     any | null
   >(null);
   const [deleteType, setDeleteType] = useState<"soft" | "permanent">("soft");
 
-  // Delete mutations
   const softDeleteUser = useDeleteUser();
   const permanentDeleteUser = usePermanentDeleteUser();
 
@@ -69,7 +68,7 @@ const UsersPage: React.FC = () => {
       softDeleteUser.mutate({ userId });
     }
   };
-  // CLOSE DIALOG ONLY AFTER SUCCESSFUL DELETE
+
   React.useEffect(() => {
     if (softDeleteUser.isSuccess || permanentDeleteUser.isSuccess) {
       setOpenDeleteDialog(false);
@@ -79,6 +78,32 @@ const UsersPage: React.FC = () => {
 
   return (
     <div className="container py-6">
+      {/* PAGE TABS */}
+      {/* PAGE TABS - REPLACE THE WHOLE TABS BLOCK */}
+      <div className="flex items-center gap-1 p-1 bg-muted rounded-lg w-fit mb-6">
+        <button
+          onClick={() => navigate("/dashboard/users")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+            "text-foreground bg-background shadow-sm"
+          )}
+        >
+          <Users className="h-4 w-4" />
+          {t("users")}
+        </button>
+
+        <button
+          onClick={() => navigate("/dashboard/deleted-users")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+            "text-muted-foreground hover:text-foreground hover:bg-background/50"
+          )}
+        >
+          <Trash2 className="h-4 w-4" />
+          {t("deletedAccounts")}
+        </button>
+      </div>
+
       {/* HEADER */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-extrabold text-foreground">
@@ -89,14 +114,13 @@ const UsersPage: React.FC = () => {
             setSelectedUser(null);
             setOpenDialog(true);
           }}
-          className=" text-white bg-gold hover:bg-gold/90 "
+          className="text-white bg-gold hover:bg-gold/90"
         >
           <Plus className="h-4 w-4" />
           {t("addUser")}
         </Button>
       </div>
 
-      {/* MAIN CARD */}
       <div className="card">
         <UsersFilters
           searchQuery={searchQuery}
@@ -114,6 +138,7 @@ const UsersPage: React.FC = () => {
         ) : (
           <UsersTable
             users={users}
+            isDeletedPage={false}
             onEdit={(user) => {
               setSelectedUser(user);
               setOpenDialog(true);
@@ -141,14 +166,14 @@ const UsersPage: React.FC = () => {
         />
       </div>
 
-      {/* ADD/UPDATE User Dialog */}
+      {/* ADD/UPDATE DIALOG */}
       <UserDialog
         open={openDialog}
         onOpenChange={setOpenDialog}
         user={selectedUser}
       />
 
-      {/* DELETE Dialog */}
+      {/* DELETE / PERMANENT DELETE */}
       <ConfirmDialog
         open={openDeleteDialog}
         onOpenChange={setOpenDeleteDialog}

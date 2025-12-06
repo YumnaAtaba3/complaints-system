@@ -57,6 +57,7 @@ export const useCreateUser = () => {
     },
 
     onError: (error: any) => {
+      console.log(error);
       toast.error(extractErrorMessage(error));
     },
   });

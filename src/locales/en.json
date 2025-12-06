@@ -27,7 +27,10 @@
   "darkMode": "Dark Mode",
 
   "usersManagement": "Users Management",
+  "users": "Users",
+  "deletedAccounts": "Deleted Accounts",
   "addUser": "Add User",
+
   "searchUsers": "Search Users",
   "filterByUnit": "Filter By Unit",
   "allUnits": "All Units",

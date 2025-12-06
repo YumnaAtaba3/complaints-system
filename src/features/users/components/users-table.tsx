@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/shared/components/ui/button";
-import { Edit, Trash2, Trash, Ban } from "lucide-react";
+import { Edit, Trash, Ban, RotateCcw } from "lucide-react";
 import { rolesStorage } from "@/features/auth/storage";
 
 import {
@@ -19,7 +19,7 @@ interface User {
   email: string;
   phone: string | null;
   national_number: string | null;
-  government_unit: {
+  government_unit?: {
     id: number;
     name: string;
   };
@@ -27,9 +27,12 @@ interface User {
 
 interface UsersTableProps {
   users: User[];
-  onEdit: (user: User) => void;
-  onDelete: (user: User) => void;
+  onEdit?: (user: User) => void;
+  onDelete?: (user: User) => void;
   onPermanentDelete?: (user: User) => void;
+  hideEdit?: boolean;
+  hideSoftDelete?: boolean;
+  isDeletedPage?: boolean; // NEW
 }
 
 const UsersTable: React.FC<UsersTableProps> = ({
@@ -37,8 +40,11 @@ const UsersTable: React.FC<UsersTableProps> = ({
   onEdit,
   onDelete,
   onPermanentDelete,
+  hideEdit = false,
+  hideSoftDelete = false,
+  isDeletedPage,
 }) => {
-  // 🔥 FIX: Ensure rolesStorage returns an ARRAY, not a string
+  // Get roles safely
   let roles: any[] = [];
 
   try {
@@ -49,9 +55,6 @@ const UsersTable: React.FC<UsersTableProps> = ({
   }
 
   const isAdmin = roles.some((r: any) => r?.name?.toLowerCase() === "admin");
-
-  console.log("Parsed roles:", roles);
-  console.log("IS ADMIN:", isAdmin);
 
   return (
     <Table>
@@ -86,23 +89,39 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
               <TableCell>
                 <div className="flex items-center justify-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(u)}
-                    className="h-8 w-8 text-gold hover:bg-gold/10"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive"
-                    onClick={() => onDelete(u)}
-                  >
-                    <Ban className="h-4 w-4" />
-                  </Button>
-                  {/* 🔥 NOW WORKS 100% */}
+                  {/* ----------- EDIT BUTTON ----------- */}
+                  {!hideEdit && onEdit && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onEdit(u)}
+                      className="h-8 w-8 text-gold hover:bg-gold/10"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  )}
+
+                  {/* --- SOFT DELETE / RESTORE BUTTON --- */}
+                  {!hideSoftDelete && onDelete && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={
+                        isDeletedPage
+                          ? "text-green-600 hover:bg-green-600/10"
+                          : "text-destructive"
+                      }
+                      onClick={() => onDelete(u)}
+                    >
+                      {isDeletedPage ? (
+                        <RotateCcw className="h-4 w-4" /> // RESTORE ICON
+                      ) : (
+                        <Ban className="h-4 w-4" /> // SOFT DELETE ICON
+                      )}
+                    </Button>
+                  )}
+
+                  {/* ----------- PERMANENT DELETE (ADMIN ONLY) ----------- */}
                   {isAdmin && onPermanentDelete && (
                     <Button
                       variant="ghost"
