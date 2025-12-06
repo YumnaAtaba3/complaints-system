@@ -101,19 +101,20 @@ export const useDeleteUser = () => {
 
   return useMutation<
     { success: boolean; message: string },
-    Error,
+    any,
     { userId: number }
   >({
     mutationFn: ({ userId }) => UserService.deleteUser(userId),
 
-    onSuccess: (data, { userId }) => {
+    onSuccess: (response, { userId }) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.removeQueries(["user", userId]);
-      console.log(data.message);
+
+      toast.success(response.message);
     },
 
     onError: (error) => {
-      console.error("Error deleting user:", error);
+      toast.error(extractErrorMessage(error));
     },
   });
 };
@@ -124,19 +125,20 @@ export const usePermanentDeleteUser = () => {
 
   return useMutation<
     { success: boolean; message: string },
-    Error,
+    any,
     { userId: number }
   >({
     mutationFn: ({ userId }) => UserService.permanentDeleteUser(userId),
 
-    onSuccess: (data, { userId }) => {
+    onSuccess: (response, { userId }) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.removeQueries(["user", userId]);
-      console.log(data.message);
+
+      toast.success(response.message);
     },
 
     onError: (error) => {
-      console.error("Error permanently deleting user:", error);
+      toast.error(extractErrorMessage(error));
     },
   });
 };

@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@/shared/components/ui/button";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Trash, Ban } from "lucide-react";
+import { rolesStorage } from "@/features/auth/storage";
 
 import {
   Table,
@@ -26,11 +27,32 @@ interface User {
 
 interface UsersTableProps {
   users: User[];
-  onEdit: (user: User) => void; // 👈 Added
-  onDelete: (user: User) => void; // 👈 ADDED
+  onEdit: (user: User) => void;
+  onDelete: (user: User) => void;
+  onPermanentDelete?: (user: User) => void;
 }
 
-const UsersTable: React.FC<UsersTableProps> = ({ users, onEdit, onDelete }) => {
+const UsersTable: React.FC<UsersTableProps> = ({
+  users,
+  onEdit,
+  onDelete,
+  onPermanentDelete,
+}) => {
+  // 🔥 FIX: Ensure rolesStorage returns an ARRAY, not a string
+  let roles: any[] = [];
+
+  try {
+    const raw = rolesStorage.get();
+    roles = typeof raw === "string" ? JSON.parse(raw) : raw || [];
+  } catch {
+    roles = [];
+  }
+
+  const isAdmin = roles.some((r: any) => r?.name?.toLowerCase() === "admin");
+
+  console.log("Parsed roles:", roles);
+  console.log("IS ADMIN:", isAdmin);
+
   return (
     <Table>
       <TableHeader>
@@ -48,6 +70,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ users, onEdit, onDelete }) => {
           </TableHead>
         </TableRow>
       </TableHeader>
+
       <TableBody>
         {users.length > 0 ? (
           users.map((u) => (
@@ -60,17 +83,9 @@ const UsersTable: React.FC<UsersTableProps> = ({ users, onEdit, onDelete }) => {
               <TableCell className="text-muted-foreground">
                 {u.national_number}
               </TableCell>
+
               <TableCell>
                 <div className="flex items-center justify-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-primary hover:bg-primary/10"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-
-                  {/* 👇 EDIT BUTTON triggers dialog */}
                   <Button
                     variant="ghost"
                     size="icon"
@@ -79,15 +94,25 @@ const UsersTable: React.FC<UsersTableProps> = ({ users, onEdit, onDelete }) => {
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
-
                   <Button
                     variant="ghost"
                     size="icon"
                     className="text-destructive"
                     onClick={() => onDelete(u)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Ban className="h-4 w-4" />
                   </Button>
+                  {/* 🔥 NOW WORKS 100% */}
+                  {isAdmin && onPermanentDelete && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-red-700 hover:bg-red-700/10"
+                      onClick={() => onPermanentDelete(u)}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </TableCell>
             </TableRow>

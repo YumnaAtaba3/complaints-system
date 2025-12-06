@@ -37,6 +37,7 @@ const UsersPage: React.FC = () => {
   const [selectedUserForDelete, setSelectedUserForDelete] = useState<
     any | null
   >(null);
+  const [deleteType, setDeleteType] = useState<"soft" | "permanent">("soft");
 
   // Delete mutations
   const softDeleteUser = useDeleteUser();
@@ -61,30 +62,20 @@ const UsersPage: React.FC = () => {
     if (!selectedUserForDelete) return;
 
     const userId = selectedUserForDelete.id;
-    const role = selectedUserForDelete.role;
 
-    if (role === "admin") {
-      permanentDeleteUser.mutate(
-        { userId },
-        {
-          onSuccess: () => {
-            setOpenDeleteDialog(false);
-            setSelectedUserForDelete(null);
-          },
-        }
-      );
+    if (deleteType === "permanent") {
+      permanentDeleteUser.mutate({ userId });
     } else {
-      softDeleteUser.mutate(
-        { userId },
-        {
-          onSuccess: () => {
-            setOpenDeleteDialog(false);
-            setSelectedUserForDelete(null);
-          },
-        }
-      );
+      softDeleteUser.mutate({ userId });
     }
   };
+  // CLOSE DIALOG ONLY AFTER SUCCESSFUL DELETE
+  React.useEffect(() => {
+    if (softDeleteUser.isSuccess || permanentDeleteUser.isSuccess) {
+      setOpenDeleteDialog(false);
+      setSelectedUserForDelete(null);
+    }
+  }, [softDeleteUser.isSuccess, permanentDeleteUser.isSuccess]);
 
   return (
     <div className="container py-6">
@@ -129,6 +120,12 @@ const UsersPage: React.FC = () => {
             }}
             onDelete={(user) => {
               setSelectedUserForDelete(user);
+              setDeleteType("soft");
+              setOpenDeleteDialog(true);
+            }}
+            onPermanentDelete={(user) => {
+              setSelectedUserForDelete(user);
+              setDeleteType("permanent");
               setOpenDeleteDialog(true);
             }}
           />
@@ -157,16 +154,19 @@ const UsersPage: React.FC = () => {
         onOpenChange={setOpenDeleteDialog}
         title={t("areYouSure")}
         description={
-          selectedUserForDelete?.role === "admin"
+          deleteType === "permanent"
             ? t("permanentDeleteWarning")
             : t("softDeleteWarning")
         }
         confirmLabel={
-          selectedUserForDelete?.role === "admin"
-            ? t("deletePermanently")
-            : t("delete")
+          deleteType === "permanent" ? t("deletePermanently") : t("delete")
         }
         onConfirm={handleDelete}
+        loading={
+          deleteType === "permanent"
+            ? permanentDeleteUser.isLoading
+            : softDeleteUser.isLoading
+        }
       />
     </div>
   );
