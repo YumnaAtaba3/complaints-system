@@ -1,22 +1,21 @@
 import React from "react";
 import { Button } from "@/shared/components/ui/button";
-import { Pencil, UserPlus, Ban, CheckCircle } from "lucide-react";
+import { Pencil,  Ban, CheckCircle } from "lucide-react";
 import type { GovernmentUnit as Unit } from "../types";
 
 type Props = {
   unit: Unit;
   onEdit: (u: Unit) => void;
-  onAssign: (u: Unit) => void;
   onToggleActive: (u: Unit) => void;
 };
 
 export const UnitActions: React.FC<Props> = ({
   unit,
   onEdit,
-  onAssign,
+
   onToggleActive,
 }) => (
-  <div className="flex items-center justify-center gap-2">
+  <div className="flex items-center justify-center gap-1">
     <Button
       variant="ghost"
       size="icon"
@@ -25,14 +24,7 @@ export const UnitActions: React.FC<Props> = ({
     >
       <Pencil className="h-5 w-5 text-green-900" />
     </Button>
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => onAssign(unit)}
-      title="Assign Manager"
-    >
-      <UserPlus className="h-5 w-5 text-green-900" />
-    </Button>
+    
     <Button
       variant="ghost"
       size="icon"

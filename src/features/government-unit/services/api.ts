@@ -24,13 +24,19 @@ async createUnit(data: { name_en: string; name_ar?: string; manager_id?: number 
 }
 
 
-  async updateUnit(
-    id: number,
-    data: { name_translation: { en: string; ar?: string } }
-  ): Promise<GovernmentUnit> {
-    const response = await httpClient.put<{ data: GovernmentUnit }>(`${this.#endPoint}/${id}`, data);
-    return response.data.data;
+async updateUnit(
+  id: number,
+  data: {
+    name_translation: { en: string; ar?: string };
+    manager_id?: number | null;
   }
+): Promise<GovernmentUnit> {
+  const response = await httpClient.put<{ data: GovernmentUnit }>(
+    `${this.#endPoint}/${id}`,
+    data
+  );
+  return response.data.data;
+}
 
   async assignManager(unitId: number, manager: Manager | null): Promise<GovernmentUnit> {
     const response = await httpClient.put<{ data: GovernmentUnit }>(
@@ -41,14 +47,14 @@ async createUnit(data: { name_en: string; name_ar?: string; manager_id?: number 
   }
 
   async deactivate(unitId: number): Promise<GovernmentUnit> {
-    const response = await httpClient.post<{ data: GovernmentUnit }>(
+    const response = await httpClient.patch<{ data: GovernmentUnit }>(
       `${this.#endPoint}/${unitId}/deactivate/`
     );
     return response.data.data;
   }
 
   async reactivate(unitId: number): Promise<GovernmentUnit> {
-    const response = await httpClient.post<{ data: GovernmentUnit }>(
+    const response = await httpClient.patch<{ data: GovernmentUnit }>(
       `${this.#endPoint}/${unitId}/reactivate/`
     );
     return response.data.data;

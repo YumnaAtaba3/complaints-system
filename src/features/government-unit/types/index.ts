@@ -16,6 +16,7 @@ export interface GovernmentUnit {
 
 
 export type Manager = {
+  [x: string]: ReactI18NextChildren | Iterable<ReactI18NextChildren>;
   id: number;
   first_name: string;
   last_name: string;

@@ -1,5 +1,5 @@
 // src/complaints/ComplaintFilters.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -9,6 +9,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Input } from "@/shared/components/ui/input";
 import { Search } from "lucide-react";
+import ComplaintsService from "../services/api"; // API service
 
 interface FiltersProps {
   searchQuery: string;
@@ -17,9 +18,8 @@ interface FiltersProps {
   onStatusChange: (v: string) => void;
   typeFilter: string;
   onTypeChange: (v: string) => void;
-  unitFilter: string;
-  onUnitChange: (v: string) => void;
-  showUnitFilter: boolean;
+  unitFilter?: string;
+  onUnitChange?: (v: string) => void;
 }
 
 const ComplaintFilters: React.FC<FiltersProps> = ({
@@ -31,11 +31,61 @@ const ComplaintFilters: React.FC<FiltersProps> = ({
   onTypeChange,
   unitFilter,
   onUnitChange,
-  showUnitFilter,
+  
 }) => {
+  const [statusOptions, setStatusOptions] = useState<Record<string, string>>(
+    {}
+  );
+  const [typeOptions, setTypeOptions] = useState<Record<string, string>>({});
+  const [unitOptions, setUnitOptions] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        setLoading(true);
+
+        // Status options from API
+        const statusData = await ComplaintsService.getStatusOptions();
+        const englishStatus: Record<string, string> = {
+          pending: "Pending",
+          open: "Open",
+          "in-review": "In Review",
+          resolved: "Resolved",
+          rejected: "Rejected",
+        };
+        setStatusOptions(
+          Object.keys(statusData).reduce((acc, key) => {
+            acc[key] = englishStatus[key] ?? key;
+            return acc;
+          }, {} as Record<string, string>)
+        );
+
+        // Type options (hardcoded or fetched from API)
+        setTypeOptions({
+          service: "Service",
+          product: "Product",
+          logistics: "Logistics",
+        });
+
+        // Unit options (hardcoded or fetched from API)
+        setUnitOptions({
+          "gov-1": "Unit A",
+          "gov-2": "Unit B",
+        });
+      } catch (err) {
+        console.error("Failed to fetch filter options", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFilters();
+  }, []);
+
   return (
     <div className="flex gap-4 mb-6 flex-wrap items-center">
-      {/* Search Input */}
+      {/* Search */}
       <div className="relative w-[300px]">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -53,10 +103,12 @@ const ComplaintFilters: React.FC<FiltersProps> = ({
         </SelectTrigger>
         <SelectContent className="bg-background [&>div>div]:hover:bg-muted/10">
           <SelectItem value="all">All Statuses</SelectItem>
-          <SelectItem value="Open">Open</SelectItem>
-          <SelectItem value="Assigned">Assigned</SelectItem>
-          <SelectItem value="In Progress">In Progress</SelectItem>
-          <SelectItem value="Closed">Closed</SelectItem>
+          {!loading &&
+            Object.entries(statusOptions).map(([key, label]) => (
+              <SelectItem key={key} value={key}>
+                {label}
+              </SelectItem>
+            ))}
         </SelectContent>
       </Select>
 
@@ -67,22 +119,27 @@ const ComplaintFilters: React.FC<FiltersProps> = ({
         </SelectTrigger>
         <SelectContent className="bg-background [&>div>div]:hover:bg-muted/10">
           <SelectItem value="all">All Types</SelectItem>
-          <SelectItem value="Service">Service</SelectItem>
-          <SelectItem value="Product">Product</SelectItem>
-          <SelectItem value="Logistics">Logistics</SelectItem>
+          {Object.entries(typeOptions).map(([key, label]) => (
+            <SelectItem key={key} value={key}>
+              {label}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
       {/* Government Unit Filter */}
-      {showUnitFilter && (
+     { unitFilter !== undefined && onUnitChange && (
         <Select value={unitFilter} onValueChange={onUnitChange}>
           <SelectTrigger className="w-[200px] bg-background">
             <SelectValue placeholder="Government Unit" />
           </SelectTrigger>
           <SelectContent className="bg-background [&>div>div]:hover:bg-muted/10">
             <SelectItem value="all">All Units</SelectItem>
-            <SelectItem value="gov-1">Unit A</SelectItem>
-            <SelectItem value="gov-2">Unit B</SelectItem>
+            {Object.entries(unitOptions).map(([key, label]) => (
+              <SelectItem key={key} value={key}>
+                {label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       )}

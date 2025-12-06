@@ -3,14 +3,16 @@ import { lazy, Suspense, type JSX } from "react";
 import DashboardLayout from "../components/dashboard-layout";
 import ProtectedRoute from "@/shared/components/protected-route";
 
+
 const DashboardPage = lazy(() => import("../pages/dashboard"));
 const UsersPage = lazy(() => import("@/features/users/pages/index"));
-const Complaints = lazy(() => import("../../complaints/pages"));
+const Complaints = lazy(() => import("@/features/complaints/pages"));
 const Statistics = lazy(() => import("../pages/statistics"));
 const Settings = lazy(() => import("../pages/settings"));
+const ComplaintDetails = lazy(() => import("@/features/ComplaintDetails/pages"));
 const GovernmentUnitsPage = lazy(
-  () => import("../../government-unit/pages")
-); // <-- Add this
+  () => import("@/features/government-unit/pages")
+); 
 
 const Load = (c: JSX.Element) => (
   <Suspense
@@ -38,11 +40,12 @@ export const dashboardRoutes = [
     children: [
       { index: true, element: Load(<DashboardPage />) },
       { path: "complaints", element: Load(<Complaints />) },
+      { path: "complaints/:id", element: Load(<ComplaintDetails />) },
       { path: "statistics", element: Load(<Statistics />) },
       { path: "users", element: Load(<UsersPage />) },
       { path: "government-units", element: Load(<GovernmentUnitsPage />) },
       { path: "settings", element: Load(<Settings />) },
-      // <-- Add this route
+    
     ],
   },
 ];

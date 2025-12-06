@@ -11,6 +11,7 @@ import { EditUnitModal } from "../components/EditUnitModal";
 import GovernmentUnitService from "../services/api";
 import { Header } from "../components/Header";
 import type { GovernmentUnit as Unit } from "../types";
+import { useUpdateUnit } from "../services/useUpdateUnit";
 
 const fakeManagers = [
   { id: 1, name: "Alice Johnson" },
@@ -51,6 +52,8 @@ const GovernmentUnitsPage: React.FC = () => {
     "none"
   );
 
+  const { mutate: updateUnit, isLoading: updating } = useUpdateUnit();
+
   const openEditModal = (unit: Unit) => {
     setEditingUnit(unit);
     setFormNameEn(unit.name_translation?.en ?? unit.name);
@@ -78,18 +81,30 @@ const GovernmentUnitsPage: React.FC = () => {
     }
   };
 
-  const handleEditSave = async () => {
-    if (!editingUnit) return;
-    try {
-      await GovernmentUnitService.updateUnit(editingUnit.id, {
-        name_translation: { en: formNameEn, ar: formNameAr },
-      });
-      setShowEdit(false);
-      refetchUnits();
-    } catch (error) {
-      console.error("Failed to edit unit:", error);
+
+const handleEditSave = () => {
+  if (!editingUnit) return;
+
+  updateUnit(
+    {
+      id: editingUnit.id,
+      data: {
+        name_translation: {
+          en: formNameEn,
+          ar: formNameAr,
+        },
+        manager_id: selectedManagerId === "none" ? null : selectedManagerId,
+      },
+    },
+    {
+      onSuccess: () => {
+        setShowEdit(false);
+        setEditingUnit(null);
+      },
     }
-  };
+  );
+};
+
 
 
   const handleToggleActive = async (unit: Unit) => {
@@ -193,9 +208,11 @@ const GovernmentUnitsPage: React.FC = () => {
         setFormNameEn={setFormNameEn}
         formNameAr={formNameAr}
         setFormNameAr={setFormNameAr}
+        managers={fakeManagers}
+        selectedManagerId={selectedManagerId}
+        setSelectedManagerId={setSelectedManagerId}
         onSubmit={handleEditSave}
       />
-
     </div>
   );
 };
