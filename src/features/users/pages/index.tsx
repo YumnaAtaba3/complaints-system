@@ -90,7 +90,7 @@ const UsersPage: React.FC = () => {
     <div className="container py-6">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl font-extrabold text-gold">
+        <h1 className="text-3xl font-extrabold text-foreground">
           {t("usersManagement")}
         </h1>
         <Button
@@ -98,7 +98,7 @@ const UsersPage: React.FC = () => {
             setSelectedUser(null);
             setOpenDialog(true);
           }}
-          className="bg-primary text-white"
+          className=" text-white bg-gold hover:bg-gold/90 "
         >
           <Plus className="h-4 w-4" />
           {t("addUser")}

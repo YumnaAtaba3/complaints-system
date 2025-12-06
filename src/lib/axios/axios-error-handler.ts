@@ -1,28 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function handleApiError(error: any) {
   if (!error.response) {
-    throw new Error("Network error — please check your connection.");
+    error.message = "Network error — please check your connection.";
+    throw error; // ❗ throw original axios error
   }
 
+  const res = error.response.data;
 
-  if (error.response.data?.message) {
-    throw new Error(error.response.data.message);
+  if (res?.message) {
+    error.message = res.message; // ❗ attach message but do not destroy structure
+    throw error;
   }
 
   const status = error.response.status;
 
   switch (status) {
     case 400:
-      throw new Error("Bad request — please check your input.");
+      error.message = "Bad request — please check your input.";
+      break;
     case 401:
-      throw new Error("Unauthorized — please log in again.");
+      error.message = "Unauthorized — please log in again.";
+      break;
     case 403:
-      throw new Error("Forbidden — you don’t have permission.");
+      error.message = "Forbidden — you don’t have permission.";
+      break;
     case 404:
-      throw new Error("Resource not found.");
+      error.message = "Resource not found.";
+      break;
     case 500:
-      throw new Error("Server error — please try again later.");
+      error.message = "Server error — please try again later.";
+      break;
     default:
-      throw new Error("Unexpected error occurred. Please try again.");
+      error.message = "Unexpected error occurred. Please try again.";
   }
+
+  throw error; // ❗ IMPORTANT: throw original axios error, not a new Error
 }

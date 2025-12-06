@@ -24,7 +24,7 @@ export const useUsers = ({
   });
 };
 // Custom hook to fetch a single user profile
-export const useUserProfile = (userId: number) => {
+export const useUserProfile = (userId: number, p0: { enabled: boolean }) => {
   return useQuery<User, Error>({
     queryKey: ["userProfile", userId], // Unique cache key for each user profile
     queryFn: () => UserService.getUserProfile(userId), // Fetch user profile
