@@ -99,7 +99,6 @@ export const LoginForm: React.FC = () => {
             />
             <Label className="text-sm cursor-pointer">Remember Me</Label>
           </div>
-
         </div>
 
         {/* SUBMIT */}
@@ -126,4 +125,3 @@ export const LoginForm: React.FC = () => {
     </div>
   );
 };
-

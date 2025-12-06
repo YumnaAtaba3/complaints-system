@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Eye, Edit, Trash2 } from "lucide-react";
+
 import {
   Table,
   TableBody,
@@ -10,7 +11,6 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 
-// Updated the User interface to reflect API response
 interface User {
   id: number;
   first_name: string;
@@ -26,9 +26,11 @@ interface User {
 
 interface UsersTableProps {
   users: User[];
+  onEdit: (user: User) => void; // 👈 Added
+  onDelete: (user: User) => void; // 👈 ADDED
 }
 
-const UsersTable: React.FC<UsersTableProps> = ({ users }) => {
+const UsersTable: React.FC<UsersTableProps> = ({ users, onEdit, onDelete }) => {
   return (
     <Table>
       <TableHeader>
@@ -67,17 +69,22 @@ const UsersTable: React.FC<UsersTableProps> = ({ users }) => {
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
+
+                  {/* 👇 EDIT BUTTON triggers dialog */}
                   <Button
                     variant="ghost"
                     size="icon"
+                    onClick={() => onEdit(u)}
                     className="h-8 w-8 text-gold hover:bg-gold/10"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
+
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                    className="text-destructive"
+                    onClick={() => onDelete(u)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
