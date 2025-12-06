@@ -47,7 +47,7 @@ const ComplaintsPagination: React.FC<ComplaintsPaginationProps> = ({
               className={`${
                 currentPage === page
                   ? "bg-gold text-white"
-                  : "border-primary text-primary hover:bg-gold/10"
+                  : " bg-white border-primary text-primary hover:bg-gold/10"
               }`}
             >
               {page}

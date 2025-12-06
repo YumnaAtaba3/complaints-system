@@ -2,8 +2,8 @@
 import { type User } from "../types";
 
 export const currentUser: User = {
-  id: "u-001",
+  id: 1,
   role: "Admin", // change to "Manager" or "Employee" to test
-  governmentUnitId: "gov-1",
+  governmentUnitId: 1,
   name: "System Admin",
 };
