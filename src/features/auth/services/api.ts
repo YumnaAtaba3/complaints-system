@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { httpClient } from "../../../lib/axios";
-import { userStorage } from "../storage";
+import { rolesStorage, userStorage } from "../storage";
 import type { AuthPayload, AuthResponse } from "../types";
 
 interface LoginResult {
@@ -21,14 +21,17 @@ class AuthServices {
     const data = response.data.data;
 
     if (!data?.token) {
-      // throw the API message if available
       throw new Error(
         response.data.message || "Invalid login response: missing token"
       );
     }
 
-    // store token
+    // Save token
     userStorage.set(data.token);
+
+    // Save user roles from backend response
+    const roles = data.user?.roles || [];
+    rolesStorage.set(roles);
 
     return {
       token: data.token,
