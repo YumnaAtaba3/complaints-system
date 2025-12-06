@@ -1,6 +1,4 @@
 import React from "react";
-import { Button } from "@/shared/components/ui/button";
-import { Edit,  Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -10,6 +8,8 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { type GovernmentUnit as Unit } from "../types";
+import { UnitActions } from "./UnitActions";
+import { Building } from "lucide-react";
 
 interface UnitsTableProps {
   units: Unit[];
@@ -77,32 +77,26 @@ export const UnitsTable: React.FC<UnitsTableProps> = ({
               </TableCell>
 
               <TableCell className="flex justify-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-gold hover:bg-gold/10"
-                  onClick={() => onEdit(unit)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                  onClick={() => onToggleActive(unit)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <UnitActions
+                  unit={unit}
+                  onEdit={onEdit}
+                  onToggleActive={onToggleActive}
+                />
               </TableCell>
             </TableRow>
           ))
         ) : (
           <TableRow>
-            <TableCell
-              colSpan={5}
-              className="py-8 text-center text-muted-foreground dark:text-muted-foreground"
-            >
-              No units found
+            <TableCell colSpan={5} className="py-16 text-center">
+              <div className="flex flex-col items-center justify-center gap-4">
+                <Building className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+                <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                  No Units Found
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  There are currently no government units to display.
+                </p>
+              </div>
             </TableCell>
           </TableRow>
         )}
