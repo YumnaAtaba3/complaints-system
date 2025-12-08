@@ -14,11 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import type { Manager } from "../types";
+import { Loader2 } from "lucide-react";
 
-type Manager = {
-  id: number;
-  name: string;
-};
+
 
 type Props = {
   open: boolean;
@@ -31,6 +30,7 @@ type Props = {
   selectedManagerId: number | "none";
   setSelectedManagerId: (v: number | "none") => void;
   onSubmit: () => void;
+  loading:boolean
 };
 
 export const CreateUnitModal: React.FC<Props> = ({
@@ -44,6 +44,7 @@ export const CreateUnitModal: React.FC<Props> = ({
   selectedManagerId,
   setSelectedManagerId,
   onSubmit,
+  loading
 }) => (
   <Dialog open={open} onOpenChange={onOpenChange}>
     <DialogContent className="max-w-md">
@@ -88,7 +89,7 @@ export const CreateUnitModal: React.FC<Props> = ({
               <SelectItem value="none">None</SelectItem>
               {managers.map((m) => (
                 <SelectItem key={m.id} value={m.id.toString()}>
-                  {m.name}
+                  {m.first_name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -98,9 +99,13 @@ export const CreateUnitModal: React.FC<Props> = ({
           <Button onClick={() => onOpenChange(false)} variant="ghost">
             Cancel
           </Button>
-          <Button onClick={onSubmit} disabled={!nameEn.trim()}>
+          <Button onClick={onSubmit}>
+           {loading && (
+              <Loader2 className="animate-spin h-4 w-4 mr-2 inline" />
+            )}
             Create
           </Button>
+      
         </div>
       </div>
     </DialogContent>

@@ -12,7 +12,7 @@ export const useCreateUnit = () => {
     },
     {
       onSuccess: () => {
-        // Invalidate government units list to refetch after creation
+       
         queryClient.invalidateQueries(["government-units"]);
       },
       onError: (error) => {

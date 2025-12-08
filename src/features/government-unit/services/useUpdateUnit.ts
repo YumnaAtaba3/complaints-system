@@ -16,7 +16,12 @@ export const useUpdateUnit = () => {
         manager_id?: number | null;
       };
     }) => {
-      const updatedUnit: GovernmentUnit = await GovernmentUnitService.updateUnit(id, data);
+      const payload = {
+        name_en: data.name_translation.en,
+        name_ar: data.name_translation.ar,
+        manager_id: data.manager_id,
+      };
+      const updatedUnit: GovernmentUnit = await GovernmentUnitService.updateUnit(id, payload);
       return updatedUnit;
     },
     {

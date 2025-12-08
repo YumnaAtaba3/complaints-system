@@ -1,160 +1,196 @@
-// /* eslint-disable @typescript-eslint/no-explicit-any */
-// /* eslint-disable react-hooks/immutability */
-// import { useEffect, useMemo, useState } from "react";
-// import type { GovernmentUnit as Unit, Manager } from "../types";
-// import { api } from "../services/api";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect } from "react";
+import type { GovernmentUnit as Unit, Manager } from "../types";
+import { useGovernmentUnits } from "../services/queries";
+import GovernmentUnitService from "../services/api";
+import ManagersService from "../services/ManagersService";
 
-// export function useGovernmentUnits() {
-//   const [units, setUnits] = useState<Unit[]>([]);
-//   const [loading, setLoading] = useState(false);
+export const useGovernmentUnitsPage = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [includeTrashed, setIncludeTrashed] = useState(false);
 
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "disabled">("all");
-//   const [managerFilter, setManagerFilter] = useState<number | "all">("all");
-//   const [itemsPerPage, setItemsPerPage] = useState(5);
-//   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [managerFilter, setManagerFilter] = useState<number | "all">("all");
 
-//   const [showCreate, setShowCreate] = useState(false);
-//   const [showEdit, setShowEdit] = useState(false);
-//   const [showAssign, setShowAssign] = useState(false);
+  const { units, loading, totalPages, totalUnits, refetchUnits } =
+    useGovernmentUnits(currentPage, itemsPerPage, includeTrashed);
 
-//   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
-//   const [formNameEn, setFormNameEn] = useState("");
-//   const [formNameAr, setFormNameAr] = useState("");
+  const [filteredUnits, setFilteredUnits] = useState<Unit[]>([]);
+  const [filtering, setFiltering] = useState(false);
 
-//   const [availableManagers, setAvailableManagers] = useState<Manager[]>([]);
-//   const [selectedManagerId, setSelectedManagerId] = useState<number | "none">("none");
+  const [managers, setManagers] = useState<Manager[]>([]);
+  const [loadingManagers, setLoadingManagers] = useState(false);
 
-//   useEffect(() => {
-//     reloadUnits();
-//   }, []);
+  // --- Create Modal State ---
+  const [showCreate, setShowCreate] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    nameEn: "",
+    nameAr: "",
+    selectedManagerId: "none" as number | "none",
+  });
+  const [createLoading, setCreateLoading] = useState(false);
 
-//   const reloadUnits = async () => {
-//     setLoading(true);
-//     const list = await api.listUnits();
-//     setUnits(list);
-//     setLoading(false);
-//   };
+  // --- Edit Modal State ---
+  const [showEdit, setShowEdit] = useState(false);
+  const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
+  const [editForm, setEditForm] = useState({
+    nameEn: "",
+    nameAr: "",
+    selectedManagerId: "none" as number | "none",
+  });
+  const [editLoading, setEditLoading] = useState(false);
 
-//   const visibleUnits = useMemo(() => units, [units]);
+  // Load managers once
+  useEffect(() => {
+    const fetchManagers = async () => {
+      setLoadingManagers(true);
+      try {
+        const data = await ManagersService.getManagers();
+        setManagers(data);
+      } catch (err) {
+        console.error("Failed to load managers", err);
+      } finally {
+        setLoadingManagers(false);
+      }
+    };
+    fetchManagers();
+  }, []);
 
-//   const filteredUnits = useMemo(() => {
-//     const q = searchQuery.trim().toLowerCase();
-//     return visibleUnits.filter((u) => {
-//       const matchesSearch =
-//         !q ||
-//         (u.name_translation?.en ?? u.name).toLowerCase().includes(q) ||
-//         String(u.id).includes(q);
-//       const matchesStatus =
-//         statusFilter === "all" ||
-//         (statusFilter === "active" && u.is_active) ||
-//         (statusFilter === "disabled" && !u.is_active);
-//       const matchesManager =
-//         managerFilter === "all" || (u.manager && u.manager.id === managerFilter);
-//       return matchesSearch && matchesStatus && matchesManager;
-//     });
-//   }, [visibleUnits, searchQuery, statusFilter, managerFilter]);
+  // Filter units
+  useEffect(() => {
+    setFiltering(true);
+    const timer = setTimeout(() => {
+      const q = searchQuery.trim().toLowerCase();
+      const filtered = units.filter((u) => {
+        const matchesSearch =
+          !q ||
+          (u.name_translation?.en ?? u.name).toLowerCase().includes(q) ||
+          String(u.id).includes(q);
+        const matchesManager =
+          managerFilter === "all" || u.manager?.id === managerFilter;
+        return matchesSearch && matchesManager;
+      });
+      setFilteredUnits(filtered);
+      setFiltering(false);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [units, searchQuery, managerFilter]);
 
-//   const totalPages = Math.max(1, Math.ceil(filteredUnits.length / itemsPerPage));
-//   const pageStart = (currentPage - 1) * itemsPerPage;
-//   const currentItems = filteredUnits.slice(pageStart, pageStart + itemsPerPage);
+  // --- Open Edit Modal ---
+  const openEditModal = (unit: Unit) => {
+    setEditingUnit(unit);
+    setEditForm({
+      nameEn: unit.name_translation?.en ?? unit.name,
+      nameAr: unit.name_translation?.ar ?? "",
+      selectedManagerId: unit.manager?.id ?? "none",
+    });
+    setShowEdit(true);
+  };
 
-//   const managersForFilter = useMemo(() => {
-//     const map = new Map<number, Manager>();
-//     units.forEach((u) => u.manager && !map.has(u.manager.id) && map.set(u.manager.id, u.manager));
-//     availableManagers.forEach((m) => !map.has(m.id) && map.set(m.id, m));
-//     return Array.from(map.values());
-//   }, [units, availableManagers]);
+  // --- Open Create Modal ---
+  const openCreateModal = () => {
+    setCreateForm({
+      nameEn: "",
+      nameAr: "",
+      selectedManagerId: "none",
+    });
+    setShowCreate(true);
+  };
 
-//   useEffect(() => setCurrentPage(1), [searchQuery, statusFilter, managerFilter, itemsPerPage]);
+  // --- Handlers ---
+  const handleEditSave = async () => {
+    if (!editingUnit) return;
+    try {
+      setEditLoading(true);
+      const updated = await GovernmentUnitService.updateUnit(editingUnit.id, {
+        name_en: editForm.nameEn.trim(),
+        name_ar: editForm.nameAr.trim(),
+        manager_id:
+          editForm.selectedManagerId === "none" ? null : editForm.selectedManagerId,
+      });
+      setFilteredUnits((prev) =>
+        prev.map((u) => (u.id === updated.id ? updated : u))
+      );
+      setShowEdit(false);
+      await refetchUnits();
+    } catch (err) {
+      console.error("Failed to update unit:", err);
+    } finally {
+      setEditLoading(false);
+    }
+  };
 
-//   // ------------------ Actions ------------------
-//   const handleCreate = async () => {
-//     await api.createUnit({ name_en: formNameEn.trim(), name_ar: formNameAr.trim() || undefined });
-//     setShowCreate(false);
-//     setCurrentPage(1);
-//     await reloadUnits();
-//   };
+  const handleCreate = async () => {
+    try {
+      setCreateLoading(true);
+      await GovernmentUnitService.createUnit({
+        name_en: createForm.nameEn.trim(),
+        name_ar: createForm.nameAr.trim(),
+        manager_id:
+          createForm.selectedManagerId === "none" ? null : createForm.selectedManagerId,
+      });
+      await refetchUnits();
+      setShowCreate(false);
+    } catch (error: any) {
+      console.error(
+        "Failed to create unit:",
+        error.response?.data?.message || error.message
+      );
+    } finally {
+      setCreateLoading(false);
+    }
+  };
 
-//   const handleEditSave = async () => {
-//     if (!editingUnit) return;
-//     await api.updateUnit(editingUnit.id, {
-//       name_translation: { ...editingUnit.name_translation, en: formNameEn, ar: formNameAr },
-//     } as any);
-//     setShowEdit(false);
-//     setEditingUnit(null);
-//     await reloadUnits();
-//   };
+  const handleToggleActive = async (unit: Unit) => {
+    try {
+      if (unit.is_active) await GovernmentUnitService.deactivate(unit.id);
+      else await GovernmentUnitService.reactivate(unit.id);
+      await refetchUnits();
+    } catch (error) {
+      console.error("Failed to toggle unit:", error);
+    }
+  };
 
-//   const handleAssign = async () => {
-//     if (!editingUnit) return;
-//     if (selectedManagerId === "none") await api.assignManager(editingUnit.id, null);
-//     else {
-//       const mgr = availableManagers.find((m) => m.id === Number(selectedManagerId));
-//       await api.assignManager(editingUnit.id, mgr ?? null);
-//     }
-//     setShowAssign(false);
-//     setEditingUnit(null);
-//     setSelectedManagerId("none");
-//     await reloadUnits();
-//   };
-
-//   const handleToggleActive = async (u: Unit) => {
-//     await api.toggleActive(u.id);
-//     await reloadUnits();
-//   };
-
-//   const openEditModal = (u: Unit) => {
-//     setEditingUnit(u);
-//     setFormNameEn(u.name_translation?.en ?? u.name);
-//     setFormNameAr(u.name_translation?.ar ?? "");
-//     setShowEdit(true);
-//   };
-
-//   const openAssignModal = async (u: Unit) => {
-//     setEditingUnit(u);
-//     const mgrs = await api.listManagers();
-//     setAvailableManagers(mgrs);
-//     setSelectedManagerId(u.manager ? u.manager.id : "none");
-//     setShowAssign(true);
-//   };
-
-//   return {
-//     units: currentItems,
-//     loading,
-//     searchQuery,
-//     setSearchQuery,
-//     statusFilter,
-//     setStatusFilter,
-//     managerFilter,
-//     setManagerFilter,
-//     itemsPerPage,
-//     setItemsPerPage,
-//     currentPage,
-//     setCurrentPage,
-//     totalPages,
-//     pageStart,
-//     filteredUnits,
-//     managersForFilter,
-//     showCreate,
-//     setShowCreate,
-//     showEdit,
-//     setShowEdit,
-//     showAssign,
-//     setShowAssign,
-//     editingUnit,
-//     formNameEn,
-//     setFormNameEn,
-//     formNameAr,
-//     setFormNameAr,
-//     availableManagers,
-//     selectedManagerId,
-//     setSelectedManagerId,
-//     handleCreate,
-//     handleEditSave,
-//     handleAssign,
-//     handleToggleActive,
-//     openEditModal,
-//     openAssignModal,
-//   };
-// }
+  return {
+    state: {
+      currentPage,
+      itemsPerPage,
+      includeTrashed,
+      searchQuery,
+      managerFilter,
+      filteredUnits,
+      filtering,
+      managers,
+      loadingManagers,
+      showCreate,
+      showEdit,
+      editingUnit,
+      createForm,
+      editForm,
+      createLoading,
+      editLoading,
+      totalPages,
+      totalUnits,
+      loadingUnits: loading,
+    },
+    actions: {
+      setCurrentPage,
+      setItemsPerPage,
+      setIncludeTrashed,
+      setSearchQuery,
+      setManagerFilter,
+      setShowCreate,
+      setShowEdit,
+      setEditingUnit,
+      setCreateForm,
+      setEditForm,
+      openEditModal,
+      openCreateModal,
+      handleEditSave,
+      handleCreate,
+      handleToggleActive,
+      refetchUnits,
+    },
+  };
+};
