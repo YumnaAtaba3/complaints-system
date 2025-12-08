@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -12,18 +13,17 @@ import {
   Camera,
 } from "lucide-react";
 import ComplaintsService from "../../../features/complaints/services/api";
-import type { Complaint } from "../../../features/complaints/types";
+import type { Complaint } from "../types";
 import InfoCard from "../components/InfoCard";
 import Section from "../components/Section";
 import BackButton from "../components/BackButton";
 
 const statusColors: Record<string, string> = {
-  pending:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100",
-  open: "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100",
-  "in-review": "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100",
-  resolved: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100",
-  rejected: "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100",
+  pending: "bg-yellow-100 text-yellow-800",
+  open: "bg-green-100 text-green-800",
+  "in-review": "bg-blue-100 text-blue-800",
+  resolved: "bg-gray-100 text-gray-800",
+  rejected: "bg-red-100 text-red-800",
 };
 
 const ComplaintDetails: React.FC = () => {
@@ -36,8 +36,13 @@ const ComplaintDetails: React.FC = () => {
       try {
         setLoading(true);
         if (id) {
-          const data = await ComplaintsService.getComplaintById(Number(id));
-          setComplaint(data);
+          const response = await ComplaintsService.getComplaintById(Number(id));
+          
+          const complaintData =
+            response && typeof (response as any).data !== "undefined"
+              ? (response as any).data
+              : response;
+          setComplaint(complaintData as Complaint);
         }
       } catch (err) {
         console.error("Failed to fetch complaint", err);
@@ -51,7 +56,7 @@ const ComplaintDetails: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="animate-spin h-12 w-12 text-muted-foreground" />
+        <Loader2 className="animate-spin h-12 w-12" />
       </div>
     );
   }
@@ -65,37 +70,41 @@ const ComplaintDetails: React.FC = () => {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6 text-foreground">
+    <div className="p-6 max-w-6xl mx-auto space-y-6">
       <BackButton />
 
+      {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <h1 className="text-3xl font-bold mb-2">{complaint.title}</h1>
+        <h1 className="text-3xl font-bold">{complaint.title}</h1>
         <span
           className={`px-4 py-1 rounded-full font-semibold ${
-            statusColors[complaint.status] ??
-            "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+            statusColors[complaint.status] ?? "bg-gray-100 text-gray-800"
           }`}
         >
           {complaint.status.toUpperCase()}
         </span>
       </div>
 
+      {/* BASIC INFO GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <InfoCard
           icon={<Tag />}
           label="Reference"
           content={complaint.reference_number}
         />
+
         <InfoCard
           icon={<FileText />}
           label="Type"
-          content={complaint.type?.name?.en}
+          content={complaint.type?.name?.en ?? "N/A"}
         />
+
         <InfoCard
           icon={<MapPin />}
           label="Address"
           content={complaint.address}
         />
+
         <InfoCard
           icon={<User />}
           label="User"
@@ -105,67 +114,69 @@ const ComplaintDetails: React.FC = () => {
               : "N/A"
           }
         />
+
         <InfoCard
           icon={<Building />}
           label="Government Unit"
-          content={complaint.government_unit?.name?.en}
+          content={complaint.government_unit?.name?.en ?? "N/A"}
         />
+
         <InfoCard
           icon={<Clock />}
           label="Created At"
           content={new Date(complaint.created_at).toLocaleString()}
         />
+
+        <InfoCard
+          icon={<Clock />}
+          label="Updated At"
+          content={new Date(complaint.updated_at).toLocaleString()}
+        />
+
+        <InfoCard
+          icon={<User />}
+          label="Assigned To (User ID)"
+          content={
+            complaint.assign_to !== null
+              ? String(complaint.assign_to)
+              : "Not Assigned"
+          }
+        />
+
+        <InfoCard
+          icon={<ClipboardList />}
+          label="Note"
+          content={complaint.note ?? "No notes added"}
+        />
       </div>
 
+      {/* DESCRIPTION */}
       <Section
         title="Description"
         icon={<FileText />}
         content={complaint.description}
       />
 
-      {complaint.notes && complaint.notes.length > 0 && (
-        <Section
-          title="Notes"
-          icon={<ClipboardList />}
-          content={
-            <ul className="list-disc list-inside space-y-1">
-              {complaint.notes.map((note, idx) => (
-                <li key={idx}>{note}</li>
-              ))}
-            </ul>
-          }
-        />
-      )}
-
-      {complaint.versionHistory && complaint.versionHistory.length > 0 && (
-        <Section
-          title="Version History"
-          icon={<Clock />}
-          content={
-            <ul className="list-disc list-inside space-y-1">
-              {complaint.versionHistory.map((v, idx) => (
-                <li key={idx}>{v}</li>
-              ))}
-            </ul>
-          }
-        />
-      )}
-
+      {/* MEDIA */}
       {complaint.media && complaint.media.length > 0 && (
         <Section
-          title="Media"
+          title="Attachments"
           icon={<Camera />}
           content={
-            <ul className="list-disc list-inside space-y-1 text-blue-600 dark:text-blue-400">
-              {complaint.media.map((m, idx) => (
-                <li key={idx}>
+            <ul className="space-y-2">
+              {complaint.media.map((m) => (
+                <li key={m.id} className="flex flex-col p-3 border rounded-lg">
+                  <div className="font-semibold">{m.name}</div>
+                  <div className="text-sm text-gray-600">
+                    Type: {m.mime_type} | Size: {Math.round(m.size / 1024)} KB
+                  </div>
                   <a
-                    href={m.url}
+                    href={m.original_url}
                     target="_blank"
-                    rel="noreferrer"
-                    className="hover:underline"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline mt-1"
                   >
-                    {m.name ?? m.url}
+                    View File
                   </a>
                 </li>
               ))}
