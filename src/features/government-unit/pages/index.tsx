@@ -7,6 +7,7 @@ import { EditUnitModal } from "../components/EditUnitModal";
 import { Header } from "../components/Header";
 import { useGovernmentUnitsPage } from "../hooks/useGovernmentUnits";
 import { Pagination } from "../components/unitPagination";
+import Snackbar from "@/features/auth/components/Snackbar";
 
 const GovernmentUnitsPage: React.FC = () => {
   const { state, actions } = useGovernmentUnitsPage();
@@ -106,6 +107,14 @@ const GovernmentUnitsPage: React.FC = () => {
         }
         onSubmit={actions.handleEditSave}
         loading={state.editLoading}
+      />
+
+      {/* Snackbar */}
+      <Snackbar
+        open={state.snackbar.open}
+        message={state.snackbar.message}
+        severity={state.snackbar.severity}
+        onClose={() => actions.setSnackbar({ ...state.snackbar, open: false })}
       />
     </div>
   );

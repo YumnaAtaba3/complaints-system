@@ -41,6 +41,20 @@ export const useGovernmentUnitsPage = () => {
   });
   const [editLoading, setEditLoading] = useState(false);
 
+  // --- Snackbar State ---
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error" | "info" | "warning";
+  }>({ open: false, message: "", severity: "success" });
+
+  const showSnackbar = (
+    message: string,
+    severity: "success" | "error" | "info" | "warning" = "success"
+  ) => {
+    setSnackbar({ open: true, message, severity });
+  };
+
   // Load managers once
   useEffect(() => {
     const fetchManagers = async () => {
@@ -50,6 +64,7 @@ export const useGovernmentUnitsPage = () => {
         setManagers(data);
       } catch (err) {
         console.error("Failed to load managers", err);
+        showSnackbar("Failed to load managers", "error");
       } finally {
         setLoadingManagers(false);
       }
@@ -77,7 +92,7 @@ export const useGovernmentUnitsPage = () => {
     return () => clearTimeout(timer);
   }, [units, searchQuery, managerFilter]);
 
-  // --- Open Edit Modal ---
+  // --- Open Modals ---
   const openEditModal = (unit: Unit) => {
     setEditingUnit(unit);
     setEditForm({
@@ -88,7 +103,6 @@ export const useGovernmentUnitsPage = () => {
     setShowEdit(true);
   };
 
-  // --- Open Create Modal ---
   const openCreateModal = () => {
     setCreateForm({
       nameEn: "",
@@ -99,56 +113,74 @@ export const useGovernmentUnitsPage = () => {
   };
 
   // --- Handlers ---
-  const handleEditSave = async () => {
-    if (!editingUnit) return;
-    try {
-      setEditLoading(true);
-      const updated = await GovernmentUnitService.updateUnit(editingUnit.id, {
-        name_en: editForm.nameEn.trim(),
-        name_ar: editForm.nameAr.trim(),
-        manager_id:
-          editForm.selectedManagerId === "none" ? null : editForm.selectedManagerId,
-      });
-      setFilteredUnits((prev) =>
-        prev.map((u) => (u.id === updated.id ? updated : u))
-      );
-      setShowEdit(false);
-      await refetchUnits();
-    } catch (err) {
-      console.error("Failed to update unit:", err);
-    } finally {
-      setEditLoading(false);
-    }
-  };
-
   const handleCreate = async () => {
     try {
       setCreateLoading(true);
-      await GovernmentUnitService.createUnit({
+      const {  message } = await GovernmentUnitService.createUnit({
         name_en: createForm.nameEn.trim(),
         name_ar: createForm.nameAr.trim(),
         manager_id:
-          createForm.selectedManagerId === "none" ? null : createForm.selectedManagerId,
+          createForm.selectedManagerId === "none"
+            ? null
+            : createForm.selectedManagerId,
       });
       await refetchUnits();
       setShowCreate(false);
+      showSnackbar(message, "success");
     } catch (error: any) {
-      console.error(
-        "Failed to create unit:",
-        error.response?.data?.message || error.message
-      );
+      console.error(error);
+      const msg =
+        error.response?.data?.message || "Failed to create unit";
+      showSnackbar(msg, "error");
     } finally {
       setCreateLoading(false);
     }
   };
 
+  const handleEditSave = async () => {
+    if (!editingUnit) return;
+    try {
+      setEditLoading(true);
+      const { data: updated, message } = await GovernmentUnitService.updateUnit(
+        editingUnit.id,
+        {
+          name_en: editForm.nameEn.trim(),
+          name_ar: editForm.nameAr.trim(),
+          manager_id:
+            editForm.selectedManagerId === "none"
+              ? null
+              : editForm.selectedManagerId,
+        }
+      );
+      setFilteredUnits((prev) =>
+        prev.map((u) => (u.id === updated.id ? updated : u))
+      );
+      setShowEdit(false);
+      await refetchUnits();
+      showSnackbar(message, "success");
+    } catch (error: any) {
+      console.error(error);
+      const msg =
+        error.response?.data?.message || "Failed to update unit";
+      showSnackbar(msg, "error");
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   const handleToggleActive = async (unit: Unit) => {
     try {
-      if (unit.is_active) await GovernmentUnitService.deactivate(unit.id);
-      else await GovernmentUnitService.reactivate(unit.id);
+      if (unit.is_active) {
+        const { message } = await GovernmentUnitService.deactivate(unit.id);
+        showSnackbar(message, "info");
+      } else {
+        const { message } = await GovernmentUnitService.reactivate(unit.id);
+        showSnackbar(message, "success");
+      }
       await refetchUnits();
-    } catch (error) {
-      console.error("Failed to toggle unit:", error);
+    } catch (error: any) {
+      console.error(error);
+      showSnackbar("Failed to update unit status", "error");
     }
   };
 
@@ -173,6 +205,7 @@ export const useGovernmentUnitsPage = () => {
       totalPages,
       totalUnits,
       loadingUnits: loading,
+      snackbar,
     },
     actions: {
       setCurrentPage,
@@ -191,6 +224,7 @@ export const useGovernmentUnitsPage = () => {
       handleCreate,
       handleToggleActive,
       refetchUnits,
+      setSnackbar,
     },
   };
 };
