@@ -1,4 +1,4 @@
-import { userStorage } from "@/features/auth/storage";
+import { rolesStorage, userStorage } from "@/features/auth/storage";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -34,7 +34,7 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         userStorage.remove(); // 🔐 CLEAR TOKEN
-        set({ user: null, isAuthenticated: false });
+        rolesStorage.remove(); // remove roles
       },
     }),
     {

@@ -2,17 +2,19 @@
 import { lazy, Suspense, type JSX } from "react";
 import DashboardLayout from "../components/dashboard-layout";
 import ProtectedRoute from "@/shared/components/protected-route";
-
+import DeletedUsersPage from "@/features/users/pages/deleted-users";
 
 const DashboardPage = lazy(() => import("../pages/dashboard"));
 const UsersPage = lazy(() => import("@/features/users/pages/index"));
 const Complaints = lazy(() => import("@/features/complaints/pages"));
 const Statistics = lazy(() => import("../pages/statistics"));
 const Settings = lazy(() => import("../pages/settings"));
-const ComplaintDetails = lazy(() => import("@/features/ComplaintDetails/pages"));
+const ComplaintDetails = lazy(
+  () => import("@/features/ComplaintDetails/pages")
+);
 const GovernmentUnitsPage = lazy(
   () => import("@/features/government-unit/pages")
-); 
+);
 
 const Load = (c: JSX.Element) => (
   <Suspense
@@ -43,9 +45,9 @@ export const dashboardRoutes = [
       { path: "complaints/:id", element: Load(<ComplaintDetails />) },
       { path: "statistics", element: Load(<Statistics />) },
       { path: "users", element: Load(<UsersPage />) },
+      { path: "deleted-users", element: Load(<DeletedUsersPage />) },
       { path: "government-units", element: Load(<GovernmentUnitsPage />) },
       { path: "settings", element: Load(<Settings />) },
-    
     ],
   },
 ];

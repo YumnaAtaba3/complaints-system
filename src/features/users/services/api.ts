@@ -159,20 +159,28 @@ class UserService {
 
     return response.data;
   }
-  // Fetch deleted users
-  async getDeletedUsers(): Promise<User[]> {
-    const response = await httpClient.get<{
-      success: boolean;
-      data: User[];
-    }>(this.#deletedUsersEndPoint, {
-      headers: {
-        Accept: "application/json",
-        "Accept-Language": localStorage.getItem("locale") || "en",
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-      },
-    });
 
-    return response.data.data;
+  // Fetch deleted users with pagination
+  async getDeletedUsers(
+    page: number = 1,
+    perPage: number = 10
+  ): Promise<UsersResponse> {
+    const response = await httpClient.get<UsersResponse>(
+      this.#deletedUsersEndPoint,
+      {
+        params: {
+          page,
+          per_page: perPage,
+        },
+        headers: {
+          Accept: "application/json",
+          "Accept-Language": localStorage.getItem("locale") || "en",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      }
+    );
+
+    return response.data;
   }
 }
 

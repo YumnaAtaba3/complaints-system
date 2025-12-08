@@ -24,7 +24,7 @@ export const useUsers = ({
   });
 };
 // Custom hook to fetch a single user profile
-export const useUserProfile = (userId: number) => {
+export const useUserProfile = (userId: number, p0: { enabled: boolean }) => {
   return useQuery<User, Error>({
     queryKey: ["userProfile", userId], // Unique cache key for each user profile
     queryFn: () => UserService.getUserProfile(userId), // Fetch user profile
@@ -33,10 +33,15 @@ export const useUserProfile = (userId: number) => {
   });
 };
 // Fetch all deleted users
-export const useDeletedUsers = () => {
-  return useQuery<User[], Error>({
-    queryKey: ["deleted-users"],
-    queryFn: () => UserService.getDeletedUsers(),
+interface UseDeletedUsersProps {
+  page: number;
+  perPage: number;
+}
+
+export const useDeletedUsers = ({ page, perPage }: UseDeletedUsersProps) => {
+  return useQuery<UsersResponse, Error>({
+    queryKey: ["deleted-users", page, perPage],
+    queryFn: () => UserService.getDeletedUsers(page, perPage),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });

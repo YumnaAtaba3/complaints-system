@@ -1,6 +1,5 @@
-import { ToastContainer } from "react-toastify";
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
 
 import { AppRouterProvider } from "./routes/provider";
 import { InitializeApp } from "./shared/components/initialize-app";
@@ -13,7 +12,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <InitializeApp>
         <AppRouterProvider />
-        <ToastContainer />
+
+        {/* Sonner */}
+        <Toaster richColors closeButton />
       </InitializeApp>
     </QueryClientProvider>
   );

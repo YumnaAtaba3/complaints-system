@@ -1,14 +1,42 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import UserService from "./api";
 import type { User } from "../types/index";
+import { toast } from "@/shared/components/ui/sonner";
 
-// Create User
+/* ------------------ 🔥 Helper to extract backend error messages ------------------ */
+function extractErrorMessage(error: any) {
+  const res = error?.response?.data;
+
+  if (!res) return "Something went wrong";
+
+  // 1. If general message exists → return it
+  if (typeof res.message === "string") return res.message;
+
+  // 2. If errors object exists → build dynamic readable message
+  if (res.errors && typeof res.errors === "object") {
+    const formatted = Object.entries(res.errors)
+      .map(([field, messages]) => {
+        const msgArray = Array.isArray(messages)
+          ? messages
+          : [String(messages)];
+
+        return `${field}: ${msgArray.join(", ")}`;
+      })
+      .join("\n");
+
+    return formatted || "Validation error";
+  }
+
+  return "Something went wrong";
+}
+
+/* ------------------------------ Create User ------------------------------ */
 export const useCreateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
     { success: boolean; message: string; data: User },
-    Error,
+    any,
     {
       first_name: string;
       last_name: string;
@@ -21,24 +49,27 @@ export const useCreateUser = () => {
   >({
     mutationFn: (data) => UserService.createUser(data),
 
-    onSuccess: (data) => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      queryClient.setQueryData(["user", data.data.id], data.data);
+      queryClient.setQueryData(["user", response.data.id], response.data);
+
+      toast.success(response.message);
     },
 
-    onError: (error) => {
-      console.error("Error creating user:", error);
+    onError: (error: any) => {
+      console.log(error);
+      toast.error(extractErrorMessage(error));
     },
   });
 };
 
-// Update User
+/* ------------------------------ Update User ------------------------------ */
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
     { success: boolean; message: string; user: User },
-    Error,
+    any,
     {
       userId: number;
       first_name: string;
@@ -52,64 +83,68 @@ export const useUpdateUser = () => {
   >({
     mutationFn: ({ userId, ...data }) => UserService.updateUser(userId, data),
 
-    onSuccess: (data) => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      queryClient.setQueryData(["user", data.user.id], data.user);
+      queryClient.setQueryData(["user", response.user.id], response.user);
+
+      toast.success(response.message);
     },
 
-    onError: (error) => {
-      console.error("Error updating user:", error);
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error));
     },
   });
 };
 
-// Soft Delete User
+/* ------------------------------ Soft Delete ------------------------------ */
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
     { success: boolean; message: string },
-    Error,
+    any,
     { userId: number }
   >({
     mutationFn: ({ userId }) => UserService.deleteUser(userId),
 
-    onSuccess: (data, { userId }) => {
+    onSuccess: (response, { userId }) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.removeQueries(["user", userId]);
-      console.log(data.message);
+
+      toast.success(response.message);
     },
 
     onError: (error) => {
-      console.error("Error deleting user:", error);
+      toast.error(extractErrorMessage(error));
     },
   });
 };
 
-// Permanent Delete User
+/* ------------------------------ Permanent Delete ------------------------------ */
 export const usePermanentDeleteUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
     { success: boolean; message: string },
-    Error,
+    any,
     { userId: number }
   >({
     mutationFn: ({ userId }) => UserService.permanentDeleteUser(userId),
 
-    onSuccess: (data, { userId }) => {
+    onSuccess: (response, { userId }) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.removeQueries(["user", userId]);
-      console.log(data.message);
+
+      toast.success(response.message);
     },
 
     onError: (error) => {
-      console.error("Error permanently deleting user:", error);
+      toast.error(extractErrorMessage(error));
     },
   });
 };
 
-// Restore User
+/* ------------------------------ Restore User ------------------------------ */
 export const useRestoreUser = () => {
   const queryClient = useQueryClient();
 
