@@ -15,12 +15,14 @@ interface UnitsTableProps {
   units: Unit[];
   onEdit: (unit: Unit) => void;
   onToggleActive: (unit: Unit) => void;
+  unitActionLoading: { [id: number]: boolean }; 
 }
 
 export const UnitsTable: React.FC<UnitsTableProps> = ({
   units,
   onEdit,
   onToggleActive,
+  unitActionLoading
 }) => {
   return (
     <Table>
@@ -81,6 +83,7 @@ export const UnitsTable: React.FC<UnitsTableProps> = ({
                   unit={unit}
                   onEdit={onEdit}
                   onToggleActive={onToggleActive}
+                loading={unitActionLoading[unit.id]}
                 />
               </TableCell>
             </TableRow>
