@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { type Complaint } from "../types";
 import ComplaintsService from "../services/api";
@@ -6,30 +7,44 @@ import { Loader2 } from "lucide-react";
 interface NoteModalProps {
   complaint: Complaint;
   onClose: () => void;
-  onAddNote: () => void; 
+  onAddNote: () => void;
+  showSnackbar: (message: string, severity: "success" | "error") => void;
 }
 
 const NoteModal: React.FC<NoteModalProps> = ({
   complaint,
   onClose,
   onAddNote,
+  showSnackbar,
 }) => {
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const handleAdd = async () => {
-    const trimmed = note.trim();
-    if (!trimmed) return;
+const handleAdd = async () => {
+  const trimmed = note.trim();
+  if (!trimmed) {
+    showSnackbar("Note cannot be empty.", "error");
+    return;
+  }
 
-    setSubmitting(true);
-    try {
-      await ComplaintsService.addNote(complaint.id, trimmed);
-      onAddNote();
-      onClose();
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  setSubmitting(true);
+  try {
+    const res = await ComplaintsService.addNote(complaint.id, trimmed);
+
+
+    showSnackbar(res.message, "success");
+
+    onAddNote();
+    onClose();
+  } catch (error: any) {
+    const backendMessage = error?.response?.data?.message;
+
+    showSnackbar(backendMessage || "Failed to add note. Try again.", "error");
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">

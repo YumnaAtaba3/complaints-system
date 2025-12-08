@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import UsersService, { type User } from "../services/UsersService";
 import ComplaintsService from "../services/api";
 
-export const useAssignModal = (complaintId: number, onConfirmParent: () => void) => {
+export const useAssignModal = (complaintId: number, onConfirmParent: (message?: string) => void) => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
   const [filter, setFilter] = useState("");
 
@@ -19,14 +19,21 @@ export const useAssignModal = (complaintId: number, onConfirmParent: () => void)
   );
 
   // Mutation for assigning
-  const { mutate: assign, isLoading: isAssigning, error: assignError } = useMutation({
-    mutationFn: (employeeId: number) => ComplaintsService.assignTo(complaintId, employeeId),
-    onSuccess: () => {
-      onConfirmParent();
-      setSelectedEmployeeId(null);
-      setFilter("");
-    },
-  });
+const {
+  mutate: assign,
+  isLoading: isAssigning,
+  error: assignError,
+} = useMutation({
+  mutationFn: (employeeId: number) =>
+    ComplaintsService.assignTo(complaintId, employeeId),
+
+  onSuccess: (res) => {
+    onConfirmParent(res.message); 
+    setSelectedEmployeeId(null);
+    setFilter("");
+  },
+});
+
 
   const handleAssign = () => {
     if (!selectedEmployeeId) return;

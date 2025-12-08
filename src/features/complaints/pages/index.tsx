@@ -7,12 +7,21 @@ import NoteModal from "../components/NoteModal";
 import AssignModal from "../components/AssignModal";
 import ExportButtons from "../components/ExportButtons";
 import ComplaintsPagination from "../components/ComplaintsPagination";
-
-import { type Complaint } from "../types";
+import Snackbar from "@/features/auth/components/Snackbar";
 import { useComplaints } from "../services/queries";
 import { useAssignModal } from "../hooks/useAssignModal";
+import { type Complaint } from "../types";
 
 const ComplaintsManagement: React.FC = () => {
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success" as "success" | "error",
+  });
+
+  const showSnackbar = (message: string, severity: "success" | "error") =>
+    setSnackbar({ open: true, message, severity });
+
   const {
     complaints,
     loading,
@@ -26,7 +35,7 @@ const ComplaintsManagement: React.FC = () => {
     itemsPerPage,
     updateStatus,
     refetchComplaints,
-  } = useComplaints();
+  } = useComplaints(showSnackbar);
 
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(
     null
@@ -36,10 +45,12 @@ const ComplaintsManagement: React.FC = () => {
   const [assignTarget, setAssignTarget] = useState<{
     show: boolean;
     complaint: Complaint | null;
-  }>({ show: false, complaint: null });
+  }>({
+    show: false,
+    complaint: null,
+  });
 
-  // Provide a safe complaint ID for hook initialization
-  const complaintId = assignTarget.complaint?.id ?? null;
+  const complaintId = assignTarget.complaint?.id ?? undefined;
 
   const {
     selectedEmployeeId,
@@ -51,7 +62,11 @@ const ComplaintsManagement: React.FC = () => {
     isAssigning,
     handleAssign,
     assignError,
-  } = useAssignModal(complaintId, () => refetchComplaints());
+  } = useAssignModal(complaintId, (message: string) => {
+    refetchComplaints();
+    showSnackbar(message, "success");
+    setAssignTarget({ show: false, complaint: null });
+  });
 
   const handleOpenNoteModal = (c: Complaint) => {
     setSelectedComplaint(c);
@@ -72,6 +87,7 @@ const ComplaintsManagement: React.FC = () => {
 
   return (
     <div className="container py-6">
+      {/* Header */}
       <div className="flex flex-wrap items-center justify-between mb-10 gap-4">
         <div>
           <h1 className="ml-3 text-foreground text-3xl font-bold">
@@ -93,6 +109,7 @@ const ComplaintsManagement: React.FC = () => {
         />
       </div>
 
+      {/* Filters */}
       <ComplaintFilters
         searchQuery={filters.search}
         onSearchChange={(value) =>
@@ -116,12 +133,15 @@ const ComplaintsManagement: React.FC = () => {
         }
       />
 
+      {/* Table */}
       <div className="p-0 overflow-x-auto">
-        {loading || fetching ? (
+        {(loading || fetching) && (
           <div className="flex items-center justify-center h-64">
             <Loader2 className="animate-spin h-12 w-12 text-muted-foreground" />
           </div>
-        ) : (
+        )}
+
+        {!loading && !fetching && (
           <ComplaintsTable
             complaints={complaints}
             onOpenAssign={handleOpenAssign}
@@ -131,6 +151,7 @@ const ComplaintsManagement: React.FC = () => {
         )}
       </div>
 
+      {/* Pagination */}
       <ComplaintsPagination
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
@@ -139,14 +160,17 @@ const ComplaintsManagement: React.FC = () => {
         itemsPerPage={itemsPerPage}
       />
 
+      {/* Note Modal */}
       {showNoteModal && selectedComplaint && (
         <NoteModal
           complaint={selectedComplaint}
           onClose={() => setShowNoteModal(false)}
           onAddNote={() => refetchComplaints()}
+          showSnackbar={showSnackbar}
         />
       )}
 
+      {/* Assign Modal */}
       {assignTarget.show && assignTarget.complaint && (
         <AssignModal
           show={assignTarget.show}
@@ -163,6 +187,14 @@ const ComplaintsManagement: React.FC = () => {
           onAssign={handleAssign}
         />
       )}
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+      />
     </div>
   );
 };

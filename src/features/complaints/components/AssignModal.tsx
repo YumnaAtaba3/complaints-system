@@ -37,8 +37,8 @@ const AssignModal: React.FC<AssignModalProps> = ({
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md max-h-[80vh] flex flex-col">
+    <div className="fixed  inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-lg max-h-[80vh] flex flex-col">
         <div className="p-5 flex-1 overflow-auto flex flex-col">
           <h3 className="text-lg font-semibold mb-2">Assign Complaint</h3>
           <p className="text-sm text-gray-600 mb-4">

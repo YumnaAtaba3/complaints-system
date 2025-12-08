@@ -5,7 +5,7 @@ import ComplaintsService from "./api";
 import { useDebounce } from "@/shared/hooks/debounce";
 import type { Complaint } from "../types";
 
-export function useComplaints() {
+export function useComplaints(showSnackbar: (msg: string, severity: "success" | "error") => void) {
   const queryClient = useQueryClient();
 
   // Filters
@@ -16,7 +16,6 @@ export function useComplaints() {
     user: "all",
     unit: "all",
   });
-
   const debouncedFilters = useDebounce(filters, 500);
 
   // Pagination
@@ -57,14 +56,17 @@ export function useComplaints() {
     },
     onError: (_err, _variables, context) => {
       queryClient.setQueryData(["complaints", debouncedFilters, currentPage], context?.previous);
+      showSnackbar("Failed to update status", "error");
+    },
+    onSuccess: (res) => {
+      showSnackbar(res.message ?? "Status updated successfully", "success");
     },
     onSettled: () => {
       queryClient.invalidateQueries(["complaints", debouncedFilters, currentPage]);
     },
   });
 
-  const updateStatus = (args: { id: number; status: string }, options?: any) =>
-    mutation.mutate(args, options);
+  const updateStatus = (args: { id: number; status: string }) => mutation.mutate(args);
 
   return {
     complaints,

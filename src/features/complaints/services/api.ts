@@ -18,23 +18,21 @@ interface ComplaintsResponse {
 class ComplaintsService {
   #endPoint = "/complaint";
 
- 
-async getComplaints(filters?: ComplaintFilters): Promise<ComplaintsResponse> {
-  const response = await httpClient.get<ComplaintsResponse>(
-    `${this.#endPoint}/index`,
-    { params: filters }  
-  );
-  return response.data;
-}
+  async getComplaints(filters?: ComplaintFilters): Promise<ComplaintsResponse> {
+    const response = await httpClient.get<ComplaintsResponse>(
+      `${this.#endPoint}/index`,
+      { params: filters }
+    );
+    return response.data;
+  }
 
-async exportComplaints(filters?: ComplaintFilters): Promise<Blob> {
-  const response = await httpClient.get(`${this.#endPoint}/export`, {
-    params: filters || {},     
-    responseType: "blob",      
-  });
-  return response.data;
-}
-
+  async exportComplaints(filters?: ComplaintFilters): Promise<Blob> {
+    const response = await httpClient.get(`${this.#endPoint}/export`, {
+      params: filters || {},
+      responseType: "blob",
+    });
+    return response.data;
+  }
 
   async getStatusOptions(): Promise<Record<string, string>> {
     const response = await httpClient.get<{ data: Record<string, string> }>(
@@ -68,28 +66,29 @@ async exportComplaints(filters?: ComplaintFilters): Promise<Blob> {
     return response.data.data;
   }
 
-
   async addNote(complaint_id: number, note: string) {
-  const response = await httpClient.post<{ data: Complaint }>(
-    `${this.#endPoint}/add-note`,
-    { complaint_id, note }
-  );
-  return response.data.data;
+    const response = await httpClient.post<{ data: Complaint; message?: string }>(
+      `${this.#endPoint}/add-note`,
+      { complaint_id, note }
+    );
+
+    return {
+      data: response.data.data,
+      message: response.data.message ?? "Note added successfully",
+    };
+  }
+
+  async assignTo(complaint_id: number, user_id: number) {
+    const response = await httpClient.post<{ data: Complaint; message?: string }>(
+      `${this.#endPoint}/assign-to`,
+      { complaint_id, user_id }
+    );
+
+    return {
+      data: response.data.data,
+      message: response.data.message ?? "Assigned successfully",
+    };
+  }
 }
-
-
-
-async assignTo(complaint_id: number, user_id: number) {
-  const response = await httpClient.post<{ data: Complaint }>(
-    `${this.#endPoint}/assign-to`,
-    { complaint_id, user_id }
-  );
-  return response.data.data;
-}
-
-}
-
-
-
 
 export default new ComplaintsService();
