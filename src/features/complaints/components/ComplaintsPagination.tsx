@@ -1,70 +1,66 @@
 import React from "react";
-import { Button } from "@/shared/components/ui/button";
 
 interface ComplaintsPaginationProps {
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
   totalPages: number;
-  startIndex: number;
-  endIndex: number;
-  filteredComplaintsLength: number;
+  totalItems: number;
+  itemsPerPage: number;
 }
 
 const ComplaintsPagination: React.FC<ComplaintsPaginationProps> = ({
   currentPage,
   setCurrentPage,
   totalPages,
-  startIndex,
-  endIndex,
-  filteredComplaintsLength,
+  totalItems,
+  itemsPerPage,
 }) => {
+  const safeTotal = totalItems || 0;
+  const safePage = currentPage || 1;
+
+  const startIndex = safeTotal === 0 ? 0 : (safePage - 1) * itemsPerPage + 1;
+  const endIndex =
+    safeTotal === 0 ? 0 : Math.min(safePage * itemsPerPage, safeTotal);
+
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-4 border-t border-border">
-      {/* Info */}
       <div className="text-sm text-muted-foreground">
-        Showing {filteredComplaintsLength ? startIndex + 1 : 0} to {endIndex} of{" "}
-        {filteredComplaintsLength} complaints
+        {safeTotal === 0
+          ? "No complaints found."
+          : `Showing ${startIndex} to ${endIndex} of ${safeTotal} complaints`}
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-          disabled={currentPage === 1}
-          className="border-primary text-primary hover:bg-gold/10"
-        >
-          Previous
-        </Button>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <button
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 rounded border"
+          >
+            Previous
+          </button>
 
-        <div className="flex items-center gap-1">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <Button
-              key={page}
-              size="sm"
-              onClick={() => setCurrentPage(page)}
-              className={`${
-                currentPage === page
-                  ? "bg-gold text-white"
-                  : " bg-white border-primary text-primary hover:bg-gold/10"
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              onClick={() => setCurrentPage(p)}
+              className={`px-3 py-1 rounded ${
+                currentPage === p ? "bg-gold text-white" : "border"
               }`}
             >
-              {page}
-            </Button>
+              {p}
+            </button>
           ))}
-        </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-          disabled={currentPage === totalPages}
-          className="border-primary text-primary hover:bg-gold/10"
-        >
-          Next
-        </Button>
-      </div>
+          <button
+            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 rounded border"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

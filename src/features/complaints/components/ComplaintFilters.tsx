@@ -1,4 +1,4 @@
-// src/complaints/ComplaintFilters.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import {
   Select,
@@ -8,8 +8,10 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Input } from "@/shared/components/ui/input";
-import { Search } from "lucide-react";
-import ComplaintsService from "../services/api"; // API service
+import { Search, Loader2 } from "lucide-react";
+
+import ComplaintsService from "../services/api";
+import UsersService, { type User } from "../services/UsersService";
 
 interface FiltersProps {
   searchQuery: string;
@@ -18,8 +20,10 @@ interface FiltersProps {
   onStatusChange: (v: string) => void;
   typeFilter: string;
   onTypeChange: (v: string) => void;
-  unitFilter?: string;
-  onUnitChange?: (v: string) => void;
+  userFilter: string;
+  onUserChange: (v: string) => void;
+  unitFilter: string;
+  onUnitChange: (v: string) => void;
 }
 
 const ComplaintFilters: React.FC<FiltersProps> = ({
@@ -29,62 +33,70 @@ const ComplaintFilters: React.FC<FiltersProps> = ({
   onStatusChange,
   typeFilter,
   onTypeChange,
+  userFilter,
+  onUserChange,
   unitFilter,
   onUnitChange,
-  
 }) => {
   const [statusOptions, setStatusOptions] = useState<Record<string, string>>(
     {}
   );
-  const [typeOptions, setTypeOptions] = useState<Record<string, string>>({});
-  const [unitOptions, setUnitOptions] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<User[]>([]);
+  const [units, setUnits] = useState<any[]>([]);
+  const [types, setTypes] = useState<any[]>([]);
 
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [loadingFormData, setLoadingFormData] = useState(false);
+
+  // Load form-data (types + units)
   useEffect(() => {
-    const fetchFilters = async () => {
+    const loadFormData = async () => {
+      setLoadingFormData(true);
       try {
-        setLoading(true);
-
-        // Status options from API
-        const statusData = await ComplaintsService.getStatusOptions();
-        const englishStatus: Record<string, string> = {
-          pending: "Pending",
-          open: "Open",
-          "in-review": "In Review",
-          resolved: "Resolved",
-          rejected: "Rejected",
-        };
-        setStatusOptions(
-          Object.keys(statusData).reduce((acc, key) => {
-            acc[key] = englishStatus[key] ?? key;
-            return acc;
-          }, {} as Record<string, string>)
-        );
-
-        // Type options (hardcoded or fetched from API)
-        setTypeOptions({
-          service: "Service",
-          product: "Product",
-          logistics: "Logistics",
-        });
-
-        // Unit options (hardcoded or fetched from API)
-        setUnitOptions({
-          "gov-1": "Unit A",
-          "gov-2": "Unit B",
-        });
-      } catch (err) {
-        console.error("Failed to fetch filter options", err);
+        const form = await ComplaintsService.getFormData();
+        setUnits(form.governmentUnits || []);
+        setTypes(form.types || []);
+      } catch (error) {
+        console.error("Failed to load form-data:", error);
       } finally {
-        setLoading(false);
+        setLoadingFormData(false);
       }
     };
 
-    fetchFilters();
+    loadFormData();
+  }, []);
+
+  // Load status options
+  useEffect(() => {
+    const loadStatuses = async () => {
+      try {
+        const statuses = await ComplaintsService.getStatusOptions();
+        setStatusOptions(statuses || {});
+      } catch (error) {
+        console.error("Failed to load statuses:", error);
+      }
+    };
+    loadStatuses();
+  }, []);
+
+  // Load users on mount
+  useEffect(() => {
+    const loadUsers = async () => {
+      setLoadingUsers(true);
+      try {
+        const response = await UsersService.getUsers();
+        setUsers(response.users);
+      } catch (error) {
+        console.error("Failed to load users:", error);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+    loadUsers();
   }, []);
 
   return (
-    <div className="flex gap-4 mb-6 flex-wrap items-center">
+    <div className="flex gap-4 flex-wrap items-center mb-6">
       {/* Search */}
       <div className="relative w-[300px]">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -98,51 +110,96 @@ const ComplaintFilters: React.FC<FiltersProps> = ({
 
       {/* Status Filter */}
       <Select value={statusFilter} onValueChange={onStatusChange}>
-        <SelectTrigger className="w-[180px] bg-background">
+        <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
-        <SelectContent className="bg-background [&>div>div]:hover:bg-muted/10">
+        <SelectContent>
           <SelectItem value="all">All Statuses</SelectItem>
-          {!loading &&
-            Object.entries(statusOptions).map(([key, label]) => (
-              <SelectItem key={key} value={key}>
-                {label}
-              </SelectItem>
-            ))}
-        </SelectContent>
-      </Select>
-
-      {/* Type Filter */}
-      <Select value={typeFilter} onValueChange={onTypeChange}>
-        <SelectTrigger className="w-[180px] bg-background">
-          <SelectValue placeholder="Type" />
-        </SelectTrigger>
-        <SelectContent className="bg-background [&>div>div]:hover:bg-muted/10">
-          <SelectItem value="all">All Types</SelectItem>
-          {Object.entries(typeOptions).map(([key, label]) => (
+          {Object.entries(statusOptions).map(([key, value]) => (
             <SelectItem key={key} value={key}>
-              {label}
+              {value}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
-      {/* Government Unit Filter */}
-     { unitFilter !== undefined && onUnitChange && (
-        <Select value={unitFilter} onValueChange={onUnitChange}>
-          <SelectTrigger className="w-[200px] bg-background">
-            <SelectValue placeholder="Government Unit" />
-          </SelectTrigger>
-          <SelectContent className="bg-background [&>div>div]:hover:bg-muted/10">
-            <SelectItem value="all">All Units</SelectItem>
-            {Object.entries(unitOptions).map(([key, label]) => (
-              <SelectItem key={key} value={key}>
-                {label}
+      {/* Type Filter – now loads dynamically */}
+      <Select value={typeFilter} onValueChange={onTypeChange}>
+        <SelectTrigger className="w-[160px]">
+          <SelectValue placeholder="Type" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Types</SelectItem>
+
+          {loadingFormData ? (
+            <div className="flex justify-center py-2">
+              <Loader2 className="animate-spin h-5 w-5 text-muted-foreground" />
+            </div>
+          ) : (
+            types.map((t) => (
+              <SelectItem key={t.id} value={t.id.toString()}>
+                {t.name.en}
               </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
+            ))
+          )}
+        </SelectContent>
+      </Select>
+
+      {/* User Filter */}
+      <Select
+        value={userFilter}
+        onValueChange={onUserChange}
+        disabled={loadingUsers}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue
+            placeholder={loadingUsers ? "Loading users..." : "User"}
+          />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Users</SelectItem>
+
+          {loadingUsers ? (
+            <div className="flex justify-center py-2">
+              <Loader2 className="animate-spin h-5 w-5 text-muted-foreground" />
+            </div>
+          ) : (
+            users.map((user) => (
+              <SelectItem key={user.id} value={user.id.toString()}>
+                {user.first_name} {user.last_name}
+              </SelectItem>
+            ))
+          )}
+        </SelectContent>
+      </Select>
+
+      {/* Unit Filter – also from form-data */}
+      <Select
+        value={unitFilter}
+        onValueChange={onUnitChange}
+        disabled={loadingFormData}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue
+            placeholder={loadingFormData ? "Loading units..." : "Unit"}
+          />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Units</SelectItem>
+
+          {loadingFormData ? (
+            <div className="flex justify-center py-2">
+              <Loader2 className="animate-spin h-5 w-5 text-muted-foreground" />
+            </div>
+          ) : (
+            units.map((unit) => (
+              <SelectItem key={unit.id} value={unit.id.toString()}>
+                {unit.name_translation.en}
+              </SelectItem>
+            ))
+          )}
+        </SelectContent>
+      </Select>
     </div>
   );
 };

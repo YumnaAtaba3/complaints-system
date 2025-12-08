@@ -1,20 +1,34 @@
 import React, { useState } from "react";
 import { type Complaint } from "../types";
+import ComplaintsService from "../services/api";
+import { Loader2 } from "lucide-react";
 
 interface NoteModalProps {
   complaint: Complaint;
   onClose: () => void;
-  onAddNote: (note: string) => void;
+  onAddNote: () => void; 
 }
 
-const NoteModal: React.FC<NoteModalProps> = ({ onClose, onAddNote }) => {
+const NoteModal: React.FC<NoteModalProps> = ({
+  complaint,
+  onClose,
+  onAddNote,
+}) => {
   const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     const trimmed = note.trim();
     if (!trimmed) return;
-    onAddNote(trimmed);
-    setNote("");
+
+    setSubmitting(true);
+    try {
+      await ComplaintsService.addNote(complaint.id, trimmed);
+      onAddNote();
+      onClose();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -26,20 +40,24 @@ const NoteModal: React.FC<NoteModalProps> = ({ onClose, onAddNote }) => {
           placeholder="Type your note here..."
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="w-full h-32 p-3 border border-black rounded-lg focus:outline-none focus:ring-2  transition resize-none"
+          className="w-full h-32 p-3 border border-black rounded-lg focus:outline-none focus:ring-2 transition resize-none"
         />
 
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
             className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition"
+            disabled={submitting}
           >
             Cancel
           </button>
+
           <button
             onClick={handleAdd}
-            className="bg-gold text-white px-4 py-2 rounded-lg hover:bg-gold/90 transition"
+            disabled={submitting}
+            className="bg-gold text-white px-4 py-2 rounded-lg hover:bg-gold/90 transition flex items-center gap-2"
           >
+            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
             Add
           </button>
         </div>

@@ -16,14 +16,8 @@ import ComplaintsService from "../services/api";
 
 interface ComplaintsTableProps {
   complaints: Complaint[];
-  currentUser: {
-    id: string;
-    role: string;
-    governmentUnitId?: string;
-    name?: string;
-  };
+
   loading?: boolean;
-  onView: (complaint: Complaint) => void;
   onOpenAssign: (
     e: React.MouseEvent<HTMLButtonElement>,
     complaint: Complaint
@@ -43,9 +37,7 @@ const statusColors: Record<string, string> = {
 
 const ComplaintsTable: React.FC<ComplaintsTableProps> = ({
   complaints,
-  currentUser,
   loading = false,
-  onView,
   onOpenAssign,
   onStatusChange,
   onAddNote,
@@ -122,11 +114,11 @@ const ComplaintsTable: React.FC<ComplaintsTableProps> = ({
           </TableHead>
           <TableHead className="font-medium text-foreground">Title</TableHead>
           <TableHead className="font-medium text-foreground">User</TableHead>
-          {currentUser.role === "Admin" && (
-            <TableHead className="font-medium text-foreground">
-              Government Unit
-            </TableHead>
-          )}
+
+          <TableHead className="font-medium text-foreground">
+            Government Unit
+          </TableHead>
+
           <TableHead className="font-medium text-foreground">Type</TableHead>
           <TableHead className="font-medium text-foreground text-center">
             Status
@@ -153,11 +145,11 @@ const ComplaintsTable: React.FC<ComplaintsTableProps> = ({
             <TableCell className="text-left text-muted-foreground">
               {c.user ? `${c.user.first_name} ${c.user.last_name}` : "N/A"}
             </TableCell>
-            {currentUser.role === "Admin" && (
-              <TableCell className="text-left text-muted-foreground">
-                {c.government_unit?.name ?? "N/A"}
-              </TableCell>
-            )}
+
+            <TableCell className="text-left text-muted-foreground">
+              {c.government_unit?.name ?? "N/A"}
+            </TableCell>
+
             <TableCell className="text-left text-muted-foreground">
               {c.type?.name?.en ?? "N/A"}
             </TableCell>
@@ -186,7 +178,7 @@ const ComplaintsTable: React.FC<ComplaintsTableProps> = ({
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onView(c);
+                  handleRowClick(c);
                 }}
                 title="View Complaint"
                 className="text-primary hover:bg-primary/10"
@@ -207,22 +199,17 @@ const ComplaintsTable: React.FC<ComplaintsTableProps> = ({
                 <Edit className="h-5 w-5" />
               </Button>
 
-              {(currentUser.role === "Admin" ||
-                (currentUser.role === "Manager" &&
-                  Number(currentUser.governmentUnitId) ===
-                    c.government_unit?.id)) && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenAssign(e as any, c);
-                  }}
-                  className="text-indigo-500 hover:bg-indigo-100"
-                >
-                  <UserPen className="h-5 w-5" />
-                </Button>
-              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenAssign(e as any, c);
+                }}
+                className="text-indigo-500 hover:bg-indigo-100"
+              >
+                <UserPen className="h-5 w-5" />
+              </Button>
             </TableCell>
           </TableRow>
         ))}

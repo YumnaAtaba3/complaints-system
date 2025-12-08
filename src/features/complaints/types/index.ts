@@ -1,21 +1,29 @@
-// src/complaints/types.ts
-
 // -----------------------------
-// Enums
+// Localized String
 // -----------------------------
-export type ComplaintStatus = "New" | "Open" | "Assigned" | "InProgress" | "Resolved" | "Closed";
-
-// -----------------------------
-// Types
-// -----------------------------
-export type LocalizedString = {
+export interface LocalizedString {
   en: string;
   ar: string;
-};
+}
 
-export type UserRole = "Admin" | "Manager" | "Employee" | "Citizen";
+// -----------------------------
+// Media / Attachment
+// -----------------------------
+export interface Attachment {
+  id: number;
+  url: string;
+}
 
-export type User = {
+// -----------------------------
+// User and Roles
+// -----------------------------
+export interface UserRole {
+  id: number;
+  name: string;
+  label: string;
+}
+
+export interface User {
   id: number;
   first_name: string;
   last_name: string;
@@ -23,12 +31,15 @@ export type User = {
   email?: string | null;
   national_number?: string | null;
   phone_verified_at?: string | null;
-  roles?: Array<{ id: number; name: string; label: string }>;
+  roles: UserRole[];
   created_at: string;
   updated_at: string;
-};
+}
 
-export type GovernmentUnit = {
+// -----------------------------
+// Government Unit
+// -----------------------------
+export interface GovernmentUnit {
   id: number;
   name: string;
   name_translation: LocalizedString;
@@ -36,55 +47,71 @@ export type GovernmentUnit = {
   deleted_at?: string | null;
   created_at: string;
   updated_at: string;
-  manager_id?: number;
-};
+}
 
-export type ComplaintType = {
+// -----------------------------
+// Complaint Type
+// -----------------------------
+export interface ComplaintType {
   id: number;
   name: LocalizedString;
-  created_at: string;
-  updated_at: string;
-};
+}
 
-export type Media = {
-  id: number;
-  url: string;
-  name?: string;
-  type?: string;
-};
-
-export type Complaint = {
+// -----------------------------
+// Complaint
+// -----------------------------
+export interface Complaint {
   id: number;
   title: string;
   description: string;
   address: string;
   reference_number: string;
-  status: ComplaintStatus;
-  user?: User | null;
-  type?: ComplaintType;
-  government_unit?: GovernmentUnit | null;
+  status: string;
+  user: User;
+  type: ComplaintType;
+  government_unit: GovernmentUnit;
   assign_to?: User | null;
-  media?: Media[];
-  notes?: string[];
-  versionHistory?: string[];
+  attachments: Attachment[];
   created_at: string;
   updated_at: string;
-};
+}
 
-// For authenticated system user
-export type CurrentUser = {
-  id: string;
-  role: UserRole;
-  governmentUnitId?: number;
-  name?: string;
-};
+// -----------------------------
+// Filters for API requests
+// -----------------------------
+export interface ComplaintFilters {
+  search?: string;
+  status?: string;
+  type_id?: number;
+  government_unit_id?: number;
+  manager_id?: number;
+  page?: number;
+}
 
-export type Employee = {
+// -----------------------------
+// Manager
+// -----------------------------
+// types.ts
+export interface Manager {
   id: number;
-  name: string;
-  email?: string;
-  role: "Employee" | "Manager" | "Admin";
-  isActive: boolean;
-  governmentUnitId?: number;
-  governmentUnit?: string;
-};
+  first_name: string;
+  last_name: string;
+  email?: string | null;
+}
+
+// -----------------------------
+// Paginated Response
+// -----------------------------
+export interface PaginatedResponse<T> {
+  data: T[];
+  links: Record<string, string | null>;
+  meta: {
+    current_page: number;
+    from: number | null;
+    last_page: number;
+    path: string;
+    per_page: number;
+    to: number | null;
+    total: number;
+  };
+}

@@ -1,82 +1,83 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import ComplaintsService from "./api"; 
+import ComplaintsService from "./api";
+import { useDebounce } from "@/shared/hooks/debounce";
 import type { Complaint } from "../types";
-import { useMemo, useState } from "react";
 
 export function useComplaints() {
   const queryClient = useQueryClient();
 
-  const query = useQuery<Complaint[], Error>({
-    queryKey: ["complaints"],
-    queryFn: () => ComplaintsService.getComplaints(),
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
+  // Filters
+  const [filters, setFilters] = useState({
+    search: "",
+    status: "all",
+    type: "all",
+    user: "all",
+    unit: "all",
   });
 
-  const complaints = query.data ?? [];
-  const loading = query.isLoading;
-  const isError = query.isError;
+  const debouncedFilters = useDebounce(filters, 500);
 
-  // ---------------- Filters & Pagination ----------------
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | string>("all");
-  const [typeFilter, setTypeFilter] = useState<"all" | string>("all");
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredComplaints = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
+  // Fetch complaints
+  const { data, isLoading, isFetching, refetch } = useQuery({
+    queryKey: ["complaints", debouncedFilters, currentPage],
+    queryFn: () =>
+      ComplaintsService.getComplaints({
+        search: debouncedFilters.search || undefined,
+        status: debouncedFilters.status === "all" ? undefined : debouncedFilters.status,
+        type_id: debouncedFilters.type === "all" ? undefined : Number(debouncedFilters.type),
+        user_id: debouncedFilters.user === "all" ? undefined : Number(debouncedFilters.user),
+        government_unit_id: debouncedFilters.unit === "all" ? undefined : Number(debouncedFilters.unit),
+        page: currentPage,
+      }),
+    keepPreviousData: true,
+  });
 
-    return complaints.filter((c) => {
-      const matchesSearch =
-        !q ||
-        c.title.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q) ||
-        String(c.id).includes(q);
+  const complaints = data?.data || [];
+  const totalItems = data?.meta?.total ?? 0;
+  const totalPages = data?.meta?.last_page ?? 1;
+  const itemsPerPage = data?.meta?.per_page ?? 10;
 
-      const matchesStatus = statusFilter === "all" || c.status === statusFilter;
-      const matchesType = typeFilter === "all" || String(c.type.id) === typeFilter;
+  // Status update mutation
+  const mutation = useMutation({
+    mutationFn: ({ id, status }: { id: number; status: string }) =>
+      ComplaintsService.updateStatus(id, status),
+    onMutate: async ({ id, status }) => {
+      await queryClient.cancelQueries(["complaints", debouncedFilters, currentPage]);
+      const previous = queryClient.getQueryData(["complaints", debouncedFilters, currentPage]);
+      queryClient.setQueryData(["complaints", debouncedFilters, currentPage], (old: any) => ({
+        ...old,
+        data: old.data.map((c: Complaint) => (c.id === id ? { ...c, status } : c)),
+      }));
+      return { previous };
+    },
+    onError: (_err, _variables, context) => {
+      queryClient.setQueryData(["complaints", debouncedFilters, currentPage], context?.previous);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(["complaints", debouncedFilters, currentPage]);
+    },
+  });
 
-      return matchesSearch && matchesStatus && matchesType;
-    });
-  }, [complaints, searchQuery, statusFilter, typeFilter]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredComplaints.length / itemsPerPage));
-  const pageStart = (currentPage - 1) * itemsPerPage;
-  const currentItems = filteredComplaints.slice(pageStart, pageStart + itemsPerPage);
-
-  // ---------------- Mutation for updating status ----------------
-  const updateStatusMutation = useMutation(
-    ({ id, status }: { id: number; status: string }) => ComplaintsService.updateStatus(id, status),
-    {
-      onSuccess: (updatedComplaint) => {
-        // Update the cache manually to reflect the new status
-        queryClient.setQueryData<Complaint[]>(["complaints"], (old) =>
-          old?.map((c) => (c.id === updatedComplaint.id ? updatedComplaint : c))
-        );
-      },
-    }
-  );
+  const updateStatus = (args: { id: number; status: string }, options?: any) =>
+    mutation.mutate(args, options);
 
   return {
-    complaints: currentItems,
-    loading,
-    isError,
-    filteredComplaints,
-    totalPages,
-    pageStart,
-    searchQuery,
-    setSearchQuery,
-    statusFilter,
-    setStatusFilter,
-    typeFilter,
-    setTypeFilter,
-    itemsPerPage,
-    setItemsPerPage,
+    complaints,
+    loading: isLoading,
+    fetching: isFetching,
+    refetchComplaints: refetch,
+    filters,
+    setFilters,
     currentPage,
     setCurrentPage,
-    refetchComplaints: query.refetch,
-    updateStatus: updateStatusMutation.mutate, 
-    updatingStatus: updateStatusMutation.isLoading,
+    itemsPerPage,
+    totalPages,
+    totalItems,
+    updateStatus,
   };
 }
