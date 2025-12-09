@@ -6,6 +6,8 @@ import {
   Users,
   Settings,
   Building,
+  LogIn,
+  History,
 } from "lucide-react";
 
 export const dashboardMenu = (t: any) => [
@@ -33,13 +35,14 @@ export const dashboardSecondaryMenu = (t: any) => [
     icon: Users,
   },
   {
-    title: t("governmentUnits"), 
+    title: t("governmentUnits"),
     url: "/dashboard/government-units",
     icon: Building,
   },
+
   {
-    title: t("settings"),
-    url: "/dashboard/settings",
-    icon: Settings,
+    title: t("activityLog"),
+    url: "/dashboard/log",
+    icon: LogIn,
   },
 ];

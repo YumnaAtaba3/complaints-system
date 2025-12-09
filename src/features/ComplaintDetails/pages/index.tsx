@@ -11,9 +11,14 @@ import {
   Clock,
   ClipboardList,
   Camera,
+  History,
 } from "lucide-react";
+
 import ComplaintsService from "../../../features/complaints/services/api";
+import { useComplaintVersionHistory } from "@/features/version-history/services/queries";
+
 import type { Complaint } from "../types";
+
 import InfoCard from "../components/InfoCard";
 import Section from "../components/Section";
 import BackButton from "../components/BackButton";
@@ -31,17 +36,22 @@ const ComplaintDetails: React.FC = () => {
   const [complaint, setComplaint] = useState<Complaint | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // 🔥 Fetch version history
+  const { data: versionHistory, isLoading: loadingHistory } =
+    useComplaintVersionHistory(id!);
+
   useEffect(() => {
     const fetchComplaint = async () => {
       try {
         setLoading(true);
         if (id) {
           const response = await ComplaintsService.getComplaintById(Number(id));
-          
+
           const complaintData =
             response && typeof (response as any).data !== "undefined"
               ? (response as any).data
               : response;
+
           setComplaint(complaintData as Complaint);
         }
       } catch (err) {
@@ -50,6 +60,7 @@ const ComplaintDetails: React.FC = () => {
         setLoading(false);
       }
     };
+
     fetchComplaint();
   }, [id]);
 
@@ -76,6 +87,7 @@ const ComplaintDetails: React.FC = () => {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h1 className="text-3xl font-bold">{complaint.title}</h1>
+
         <span
           className={`px-4 py-1 rounded-full font-semibold ${
             statusColors[complaint.status] ?? "bg-gray-100 text-gray-800"
@@ -183,6 +195,64 @@ const ComplaintDetails: React.FC = () => {
             </ul>
           }
         />
+      )}
+
+      {/* VERSION HISTORY */}
+
+      {/* VERSION HISTORY */}
+      {versionHistory && (
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-yellow-600 flex items-center gap-2">
+            <History className="w-6 h-6" /> Complaint Version History
+          </h2>
+
+          {loadingHistory ? (
+            <div className="flex items-center gap-2 text-gray-500">
+              <Loader2 className="w-5 h-5 animate-spin" /> Loading history...
+            </div>
+          ) : versionHistory.data && versionHistory.data.length > 0 ? (
+            // Has version history
+            <div className="space-y-3">
+              {versionHistory.data.map((version) => {
+                const meta = version.version_metadata;
+
+                const username = meta?.changed_by
+                  ? `${meta.changed_by.first_name} ${meta.changed_by.last_name}`
+                  : "System";
+
+                return (
+                  <div
+                    key={version.id}
+                    className="w-full border rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <h3 className="font-semibold text-lg text-gray-900">
+                      {meta?.event ?? "Unknown Event"}
+                    </h3>
+
+                    <div className="mt-1 text-sm text-gray-500 flex items-center gap-3 flex-wrap">
+                      <span className="flex items-center gap-1">
+                        <User className="w-4 h-4" />
+                        {username}
+                      </span>
+
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        {meta?.version_created_at
+                          ? new Date(meta.version_created_at).toLocaleString()
+                          : "Unknown Date"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            // ❗ No version history
+            <div className="text-gray-500 italic border rounded-lg p-4 bg-gray-50">
+              No version history is available for this complaint.
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

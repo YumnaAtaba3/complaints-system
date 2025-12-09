@@ -3,6 +3,7 @@ import { lazy, Suspense, type JSX } from "react";
 import DashboardLayout from "../components/dashboard-layout";
 import ProtectedRoute from "@/shared/components/protected-route";
 import DeletedUsersPage from "@/features/users/pages/deleted-users";
+import ActivityLog from "../pages/activity-log";
 
 const DashboardPage = lazy(() => import("../pages/dashboard"));
 const UsersPage = lazy(() => import("@/features/users/pages/index"));
@@ -47,7 +48,8 @@ export const dashboardRoutes = [
       { path: "users", element: Load(<UsersPage />) },
       { path: "deleted-users", element: Load(<DeletedUsersPage />) },
       { path: "government-units", element: Load(<GovernmentUnitsPage />) },
-      { path: "settings", element: Load(<Settings />) },
+
+      { path: "log", element: Load(<ActivityLog />) },
     ],
   },
 ];
