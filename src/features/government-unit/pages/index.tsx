@@ -12,6 +12,13 @@ import Snackbar from "@/features/auth/components/Snackbar";
 const GovernmentUnitsPage: React.FC = () => {
   const { state, actions } = useGovernmentUnitsPage();
 
+  const showSnackbar = (
+    message: string,
+    severity: "success" | "error" | "info" | "warning" = "success"
+  ) => {
+    actions.setSnackbar({ open: true, message, severity });
+  };
+
   return (
     <div className="container py-6">
       <Header onAdd={() => actions.setShowCreate(true)} />
@@ -45,6 +52,7 @@ const GovernmentUnitsPage: React.FC = () => {
             units={state.filteredUnits}
             onEdit={actions.openEditModal}
             onToggleActive={actions.handleToggleActive}
+            unitActionLoading={state.unitActionLoading} 
           />
         )}
 
@@ -68,26 +76,15 @@ const GovernmentUnitsPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Create Modal */}
       <CreateUnitModal
         open={state.showCreate}
         onOpenChange={actions.setShowCreate}
-        nameEn={state.createForm.nameEn}
-        setNameEn={(v) =>
-          actions.setCreateForm({ ...state.createForm, nameEn: v })
-        }
-        nameAr={state.createForm.nameAr}
-        setNameAr={(v) =>
-          actions.setCreateForm({ ...state.createForm, nameAr: v })
-        }
         managers={state.managers}
-        selectedManagerId={state.createForm.selectedManagerId}
-        setSelectedManagerId={(v) =>
-          actions.setCreateForm({ ...state.createForm, selectedManagerId: v })
-        }
-        onSubmit={actions.handleCreate}
-        loading={state.createLoading}
+        showSnackbar={showSnackbar}
       />
 
+      {/* Edit Modal */}
       <EditUnitModal
         open={state.showEdit}
         onOpenChange={actions.setShowEdit}
@@ -107,9 +104,10 @@ const GovernmentUnitsPage: React.FC = () => {
         }
         onSubmit={actions.handleEditSave}
         loading={state.editLoading}
+        showSnackbar={showSnackbar}
       />
 
-      {/* Snackbar */}
+      {/* Page-level Snackbar */}
       <Snackbar
         open={state.snackbar.open}
         message={state.snackbar.message}
