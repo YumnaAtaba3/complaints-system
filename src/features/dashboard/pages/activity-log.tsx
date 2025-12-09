@@ -1,7 +1,7 @@
-import React from "react";
+// import React from "react";
 
-const ActvityLog = () => {
-  return <div>ActvityLog</div>;
-};
+// const ActvityLog = () => {
+//   return <div>ActvityLog</div>;
+// };
 
-export default ActvityLog;
+// export default ActvityLog;
