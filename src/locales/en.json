@@ -59,5 +59,17 @@
   "permanentDeleteWarning": "This action will permanently delete the admin user and cannot be undone.",
   "delete": "Delete",
   "deletePermanently": "Delete Permanently",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+
+  "statisticsDescription": "Overview of complaint statistics and trends",
+  "totalComplaints": "Total Complaints",
+  "pendingComplaints": "Pending Complaints",
+  "resolvedComplaints": "Resolved Complaints",
+  "newComplaints": "New Complaints",
+  "monthlyComplaintsFlow": "Monthly Complaints Flow",
+  "complaintsByUnit": "Distribution by Government Unit",
+  "complaintsCount": "Complaints",
+  "loadingStatistics": "Loading statistics...",
+  "failedToLoadStatistics": "Failed to load statistics. Please try again.",
+  "error": "Error"
 }
