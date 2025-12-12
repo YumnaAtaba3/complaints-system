@@ -89,6 +89,32 @@ class ComplaintsService {
       message: response.data.message ?? "Assigned successfully",
     };
   }
-}
+
+  async downloadAttachment(
+    attachmentId: number
+  ): Promise<{ blob: Blob; fileName: string }> {
+    const response = await httpClient.get(
+      `${this.#endPoint}/attachments/${attachmentId}/download`,
+      {
+        responseType: "blob",
+      }
+    );
+
+    // Extract filename from response headers
+    const contentDisposition = response.headers["content-disposition"];
+    let fileName = "file";
+
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename="?(.+)"?/);
+      if (match) {
+        fileName = decodeURIComponent(match[1]);
+      }
+    }
+
+    return {
+      blob: response.data,
+      fileName,
+    };
+  }}
 
 export default new ComplaintsService();
