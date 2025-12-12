@@ -33,8 +33,8 @@ const ExportActivityLogButtons: React.FC<Props> = ({ filters }) => {
       a.href = url;
 
       a.download = exportAll
-        ? `all-activity-logs.xml`
-        : `filtered-activity-logs.xml`;
+        ? `all-activity-logs.csv`
+        : `filtered-activity-logs.csv`;
 
       a.click();
       URL.revokeObjectURL(url);

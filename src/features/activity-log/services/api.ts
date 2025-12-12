@@ -50,9 +50,6 @@ class ActivityLogService {
     const response = await httpClient.get(`${this.#endpoint}/export`, {
       params: filters || {},
       responseType: "blob", // expect XML file
-      headers: {
-        Accept: "application/xml",
-      },
     });
 
     return response.data; // Blob
