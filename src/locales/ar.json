@@ -16,10 +16,34 @@
   "inProgress": "قيد المعالجة",
   "resolved": "محلولة",
   "statistics": "الإحصائيات",
-  "users": "المستخدمون",
+
   "settings": "الإعدادات",
 
-  "activityLog": "نشاط الدخول",
+  "activityLog": "سجل النشاط",
+  "logName": "اسم السجل",
+  "event": "الحدث",
+  "subject": "الموضوع",
+  "causer": "الفاعل",
+  "date": "التاريخ",
+  "noActivityLogs": "لا يوجد سجلات نشاط",
+
+  "exportAll": "تصدير الكل",
+  "exportFiltered": "تصدير المفلتر",
+
+  "filters": "عوامل التصفية",
+  "eventType": "نوع الحدث",
+  "subjectType": "نوع العنصر",
+  "logNameFilter": "اسم السجل",
+  "causerFilter": "المستخدم",
+  "dateFrom": "من تاريخ",
+  "dateTo": "إلى تاريخ",
+
+  "showingLogs": "عرض",
+  "toLogs": "إلى",
+  "ofLogs": "من",
+  "logs": "السجلات",
+  "noLogsFound": "لا يوجد سجلات.",
+
   "logout": "تسجيل الخروج",
   "profile": "الملف الشخصي",
 
@@ -58,5 +82,17 @@
   "permanentDeleteWarning": "سيتم حذف المستخدم (المدير) نهائيًا ولا يمكن التراجع عن هذا الإجراء.",
   "delete": "حذف",
   "deletePermanently": "حذف نهائي",
-  "cancel": "إلغاء"
+  "cancel": "إلغاء",
+
+  "statisticsDescription": "نظرة عامة على إحصائيات الشكاوى والاتجاهات",
+  "totalComplaints": "إجمالي الشكاوى",
+  "pendingComplaints": "الشكاوى قيد الانتظار",
+  "resolvedComplaints": "الشكاوى المحلولة",
+  "newComplaints": "الشكاوى الجديدة",
+  "monthlyComplaintsFlow": "التدفق الشهري للشكاوى",
+  "complaintsByUnit": "التوزيع حسب الجهة الحكومية",
+  "complaintsCount": "الشكاوى",
+  "loadingStatistics": "جاري تحميل الإحصائيات...",
+  "failedToLoadStatistics": "فشل تحميل الإحصائيات. يرجى المحاولة مرة أخرى.",
+  "error": "خطأ"
 }

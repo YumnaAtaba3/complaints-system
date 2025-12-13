@@ -4,6 +4,8 @@ import DashboardLayout from "../components/dashboard-layout";
 import ProtectedRoute from "@/shared/components/protected-route";
 import DeletedUsersPage from "@/features/users/pages/deleted-users";
 import ActivityLogPage from "@/features/activity-log/pages";
+import { StatisticsPage } from "@/features/statistics/pages";
+import RoleProtectedRoute from "@/shared/components/role-protected-route";
 
 const DashboardPage = lazy(() => import("../pages/dashboard"));
 const UsersPage = lazy(() => import("@/features/users/pages/index"));
@@ -41,12 +43,27 @@ export const dashboardRoutes = [
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: Load(<DashboardPage />) },
+      { index: true, element: Load(<StatisticsPage />) },
       { path: "complaints", element: Load(<Complaints />) },
       { path: "complaints/:id", element: Load(<ComplaintDetails />) },
-      { path: "statistics", element: Load(<Statistics />) },
-      { path: "users", element: Load(<UsersPage />) },
-      { path: "deleted-users", element: Load(<DeletedUsersPage />) },
+      { path: "statistics", element: Load(<StatisticsPage />) },
+      {
+        path: "users",
+        element: Load(
+          <RoleProtectedRoute allowedRoles={["admin", "manager"]}>
+            <UsersPage />
+          </RoleProtectedRoute>
+        ),
+      },
+      {
+        path: "deleted-users",
+        element: (
+          <RoleProtectedRoute allowedRoles={["admin", "manager"]}>
+            {Load(<DeletedUsersPage />)}
+          </RoleProtectedRoute>
+        ),
+      },
+
       { path: "government-units", element: Load(<GovernmentUnitsPage />) },
 
       { path: "log", element: Load(<ActivityLogPage />) },

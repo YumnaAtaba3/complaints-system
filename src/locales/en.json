@@ -16,10 +16,34 @@
   "inProgress": "In Progress",
   "resolved": "Resolved",
   "statistics": "Statistics",
-  "users": "Users",
+
   "settings": "Settings",
 
   "activityLog": "Activity Log",
+  "logName": "Log Name",
+  "event": "Event",
+  "subject": "Subject",
+  "causer": "Causer",
+  "date": "Date",
+  "noActivityLogs": "No activity logs found",
+
+  "exportAll": "Export All",
+  "exportFiltered": "Export Filtered",
+
+  "filters": "Filters",
+  "eventType": "Event Type",
+  "subjectType": "Subject Type",
+  "logNameFilter": "Log Name",
+  "causerFilter": "Causer",
+  "dateFrom": "Date From",
+  "dateTo": "Date To",
+
+  "showingLogs": "Showing",
+  "toLogs": "to",
+  "ofLogs": "of",
+  "logs": "logs",
+  "noLogsFound": "No logs found.",
+
   "logout": "Logout",
   "profile": "Profile",
 
@@ -59,5 +83,17 @@
   "permanentDeleteWarning": "This action will permanently delete the admin user and cannot be undone.",
   "delete": "Delete",
   "deletePermanently": "Delete Permanently",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+
+  "statisticsDescription": "Overview of complaint statistics and trends",
+  "totalComplaints": "Total Complaints",
+  "pendingComplaints": "Pending Complaints",
+  "resolvedComplaints": "Resolved Complaints",
+  "newComplaints": "New Complaints",
+  "monthlyComplaintsFlow": "Monthly Complaints Flow",
+  "complaintsByUnit": "Distribution by Government Unit",
+  "complaintsCount": "Complaints",
+  "loadingStatistics": "Loading statistics...",
+  "failedToLoadStatistics": "Failed to load statistics. Please try again.",
+  "error": "Error"
 }
