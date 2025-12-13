@@ -71,6 +71,16 @@ class UsersService {
 
     return allUsers;
   }
+
+
+  async getUnitEmployees(unitId: number): Promise<User[]> {
+    const response = await httpClient.get<{
+      success: boolean;
+      employees: User[];
+    }>(`/user/employees-by-government-unit/${unitId}`);
+
+    return response.data.employees;
+  }
 }
 
 export default new UsersService();
