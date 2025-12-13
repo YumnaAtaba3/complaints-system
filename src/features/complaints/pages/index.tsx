@@ -50,8 +50,11 @@ const ComplaintsManagement: React.FC = () => {
     complaint: null,
   });
 
-  const complaintId = assignTarget.complaint?.id ?? undefined;
+  // ✅ SAFE values for the hook
+  const complaintId = assignTarget.complaint?.id ?? 0;
+  const governmentUnitId = assignTarget.complaint?.government_unit?.id ?? 0;
 
+  // ✅ CORRECT hook usage
   const {
     selectedEmployeeId,
     setSelectedEmployeeId,
@@ -62,9 +65,9 @@ const ComplaintsManagement: React.FC = () => {
     isAssigning,
     handleAssign,
     assignError,
-  } = useAssignModal(complaintId, (message: string) => {
+  } = useAssignModal(complaintId, governmentUnitId, (message?: string) => {
     refetchComplaints();
-    showSnackbar(message, "success");
+    showSnackbar(message ?? "Assigned successfully", "success");
     setAssignTarget({ show: false, complaint: null });
   });
 
@@ -173,7 +176,7 @@ const ComplaintsManagement: React.FC = () => {
       {/* Assign Modal */}
       {assignTarget.show && assignTarget.complaint && (
         <AssignModal
-          show={assignTarget.show}
+          show
           complaintReference={assignTarget.complaint.reference_number}
           selectedEmployeeId={selectedEmployeeId}
           setSelectedEmployeeId={setSelectedEmployeeId}

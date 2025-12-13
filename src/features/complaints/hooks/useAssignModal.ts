@@ -3,37 +3,46 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import UsersService, { type User } from "../services/UsersService";
 import ComplaintsService from "../services/api";
 
-export const useAssignModal = (complaintId: number, onConfirmParent: (message?: string) => void) => {
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+export const useAssignModal = (
+  complaintId: number,
+  governmentUnitId: number,
+  onConfirmParent: (message?: string) => void
+) => {
+  const [selectedEmployeeId, setSelectedEmployeeId] =
+    useState<number | null>(null);
   const [filter, setFilter] = useState("");
 
-  // Fetch all users (cached)
-  const { data: employees = [], isLoading: isLoadingEmployees } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: () => UsersService.getAllUsers(),
-    staleTime: Infinity,
+  // ✅ Fetch employees ONLY for the complaint unit
+  const {
+    data: employees = [],
+    isLoading: isLoadingEmployees,
+  } = useQuery<User[]>({
+    queryKey: ["unit-employees", governmentUnitId],
+    queryFn: () => UsersService.getUnitEmployees(governmentUnitId),
+    enabled: !!governmentUnitId,
   });
 
   const visibleEmployees = employees.filter((e) =>
-    `${e.first_name} ${e.last_name}`.toLowerCase().includes(filter.trim().toLowerCase())
+    `${e.first_name} ${e.last_name}`
+      .toLowerCase()
+      .includes(filter.trim().toLowerCase())
   );
 
-  // Mutation for assigning
-const {
-  mutate: assign,
-  isLoading: isAssigning,
-  error: assignError,
-} = useMutation({
-  mutationFn: (employeeId: number) =>
-    ComplaintsService.assignTo(complaintId, employeeId),
+  // Assign mutation
+  const {
+    mutate: assign,
+    isLoading: isAssigning,
+    error: assignError,
+  } = useMutation({
+    mutationFn: (employeeId: number) =>
+      ComplaintsService.assignTo(complaintId, employeeId),
 
-  onSuccess: (res) => {
-    onConfirmParent(res.message); 
-    setSelectedEmployeeId(null);
-    setFilter("");
-  },
-});
-
+    onSuccess: (res) => {
+      onConfirmParent(res.message);
+      setSelectedEmployeeId(null);
+      setFilter("");
+    },
+  });
 
   const handleAssign = () => {
     if (!selectedEmployeeId) return;
