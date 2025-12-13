@@ -98,6 +98,7 @@ const DashboardSidebar = () => {
             <SidebarMenu>
               {secondaryItems.map((item) => {
                 const isActive = location.pathname.startsWith(item.url);
+
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
@@ -105,11 +106,7 @@ const DashboardSidebar = () => {
                       tooltip={item.title}
                       isActive={isActive}
                     >
-                      <NavLink
-                        to={item.url}
-                        className="hover:bg-sidebar-accent"
-                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                      >
+                      <NavLink to={item.url}>
                         <item.icon className="h-5 w-5" />
                         <span>{item.title}</span>
                       </NavLink>

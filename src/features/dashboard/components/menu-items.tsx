@@ -1,11 +1,30 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { isEmployee } from "@/features/auth/utlitlies/roles";
+import type { LucideIcon } from "lucide-react";
+
 import {
+  LayoutDashboard,
+  FileText,
   BarChart3,
+  Users,
+  Settings,
   Building,
   LogIn,
-  Users,
-  type LucideIcon,
+  History,
 } from "lucide-react";
+
+export const dashboardMenu = (t: any) => [
+  {
+    title: t("overview"),
+    url: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: t("allComplaints"),
+    url: "/dashboard/complaints",
+    icon: FileText,
+  },
+];
 
 export interface MenuItem {
   title: string;

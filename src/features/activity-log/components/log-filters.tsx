@@ -129,10 +129,36 @@ const ActivityLogFilters: React.FC<ActivityLogFiltersProps> = ({
             </Button>
           </PopoverTrigger>
 
-          <PopoverContent className="w-[260px] p-0 shadow-xl rounded-xl relative">
+          <PopoverContent className="w-[360px] p-0 shadow-xl rounded-xl relative">
             <div className="flex flex-col">
               {/* ---- FILTER GROUPS ---- */}
               <div className="flex flex-col py-2">
+                {/* Date Filter */}
+                <div className="flex items-center justify-around text-xs text-muted-foreground mb-2">
+                  <span>From Date</span>
+                  <span>To Date</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => onDateFromChange(e.target.value)}
+                    className="h-9 w-full mx-2"
+                  />
+
+                  <span className="text-muted-foreground text-sm shrink-0">
+                    →
+                  </span>
+
+                  <Input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => onDateToChange(e.target.value)}
+                    className="h-9 w-full mx-2"
+                  />
+                </div>
+
                 {/* EVENT TYPE */}
                 <div className="relative">
                   <button
@@ -183,7 +209,6 @@ const ActivityLogFilters: React.FC<ActivityLogFiltersProps> = ({
                     </div>
                   )}
                 </div>
-
                 {/* SUBJECT TYPE */}
                 <div className="relative">
                   <button
@@ -228,7 +253,6 @@ const ActivityLogFilters: React.FC<ActivityLogFiltersProps> = ({
                     </div>
                   )}
                 </div>
-
                 {/* LOG NAME */}
                 <div className="relative">
                   <button
@@ -271,7 +295,6 @@ const ActivityLogFilters: React.FC<ActivityLogFiltersProps> = ({
                     </div>
                   )}
                 </div>
-
                 {/* CAUSER */}
                 <div className="relative">
                   <button
@@ -321,26 +344,6 @@ const ActivityLogFilters: React.FC<ActivityLogFiltersProps> = ({
                       )}
                     </div>
                   )}
-                </div>
-
-                {/* DATE RANGE */}
-                <div className="px-4 py-3">
-                  <div className="text-xs text-muted-foreground mb-1">
-                    Date Range
-                  </div>
-
-                  <Input
-                    type="date"
-                    value={dateFrom}
-                    onChange={(e) => onDateFromChange(e.target.value)}
-                    className="mb-2"
-                  />
-
-                  <Input
-                    type="date"
-                    value={dateTo}
-                    onChange={(e) => onDateToChange(e.target.value)}
-                  />
                 </div>
               </div>
             </div>
