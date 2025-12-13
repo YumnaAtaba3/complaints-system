@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
+import { useTranslation } from "react-i18next";
 
 export interface ActivityLogItem {
   id: number;
@@ -22,17 +23,27 @@ interface ActivityLogTableProps {
 }
 
 const ActivityLogTable: React.FC<ActivityLogTableProps> = ({ logs }) => {
+  const { t } = useTranslation();
+
   return (
     <Table>
       <TableHeader>
         <TableRow className="bg-muted/40">
           <TableHead className="font-medium text-foreground">
-            Log Name
+            {t("logName")}
           </TableHead>
-          <TableHead className="font-medium text-foreground">Event</TableHead>
-          <TableHead className="font-medium text-foreground">Subject</TableHead>
-          <TableHead className="font-medium text-foreground">Causer</TableHead>
-          <TableHead className="font-medium text-foreground">Date</TableHead>
+          <TableHead className="font-medium text-foreground">
+            {t("event")}
+          </TableHead>
+          <TableHead className="font-medium text-foreground">
+            {t("subject")}
+          </TableHead>
+          <TableHead className="font-medium text-foreground">
+            {t("causer")}
+          </TableHead>
+          <TableHead className="font-medium text-foreground">
+            {t("date")}
+          </TableHead>
         </TableRow>
       </TableHeader>
 
@@ -65,7 +76,7 @@ const ActivityLogTable: React.FC<ActivityLogTableProps> = ({ logs }) => {
               colSpan={5}
               className="py-8 text-center text-muted-foreground"
             >
-              No activity logs found
+              {t("noActivityLogs")}
             </TableCell>
           </TableRow>
         )}

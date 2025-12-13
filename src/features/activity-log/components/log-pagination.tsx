@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface LogsPaginationProps {
   currentPage: number;
@@ -21,13 +22,16 @@ const LogsPagination: React.FC<LogsPaginationProps> = ({
   const startIndex = safeTotal === 0 ? 0 : (safePage - 1) * itemsPerPage + 1;
   const endIndex =
     safeTotal === 0 ? 0 : Math.min(safePage * itemsPerPage, safeTotal);
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-4 border-t border-border">
       <div className="text-sm text-muted-foreground">
         {safeTotal === 0
-          ? "No Logs found."
-          : `Showing ${startIndex} to ${endIndex} of ${safeTotal} Logs`}
+          ? t("noLogsFound")
+          : `${t("showingLogs")} ${startIndex} ${t("toLogs")} ${endIndex} ${t(
+              "ofLogs"
+            )} ${safeTotal} ${t("logs")}`}
       </div>
 
       {totalPages > 1 && (
@@ -37,7 +41,7 @@ const LogsPagination: React.FC<LogsPaginationProps> = ({
             disabled={currentPage === 1}
             className="px-3 py-1 rounded border"
           >
-            Previous
+            {t("previous")}
           </button>
 
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
@@ -59,7 +63,7 @@ const LogsPagination: React.FC<LogsPaginationProps> = ({
             disabled={currentPage === totalPages}
             className="px-3 py-1 rounded border"
           >
-            Next
+            {t("next")}
           </button>
         </div>
       )}

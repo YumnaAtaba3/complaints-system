@@ -16,10 +16,34 @@
   "inProgress": "قيد المعالجة",
   "resolved": "محلولة",
   "statistics": "الإحصائيات",
-  "users": "المستخدمون",
+
   "settings": "الإعدادات",
 
-  "activityLog": "نشاط الدخول",
+  "activityLog": "سجل النشاط",
+  "logName": "اسم السجل",
+  "event": "الحدث",
+  "subject": "الموضوع",
+  "causer": "الفاعل",
+  "date": "التاريخ",
+  "noActivityLogs": "لا يوجد سجلات نشاط",
+
+  "exportAll": "تصدير الكل",
+  "exportFiltered": "تصدير المفلتر",
+
+  "filters": "عوامل التصفية",
+  "eventType": "نوع الحدث",
+  "subjectType": "نوع العنصر",
+  "logNameFilter": "اسم السجل",
+  "causerFilter": "المستخدم",
+  "dateFrom": "من تاريخ",
+  "dateTo": "إلى تاريخ",
+
+  "showingLogs": "عرض",
+  "toLogs": "إلى",
+  "ofLogs": "من",
+  "logs": "السجلات",
+  "noLogsFound": "لا يوجد سجلات.",
+
   "logout": "تسجيل الخروج",
   "profile": "الملف الشخصي",
 

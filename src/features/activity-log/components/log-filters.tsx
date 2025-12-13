@@ -12,6 +12,7 @@ import { Input } from "@/shared/components/ui/input";
 
 import { useActivityLogFilters } from "../services/queries";
 import { useUsers } from "@/features/users/services/queries";
+import { useTranslation } from "react-i18next";
 
 /* ---------------- Chip UI ---------------- */
 const Chip: React.FC<{ label: string; onRemove?: () => void }> = ({
@@ -114,6 +115,7 @@ const ActivityLogFilters: React.FC<ActivityLogFiltersProps> = ({
 
   /* ---------------- SUBMENU FLOAT STYLE (OPTION C) ---------------- */
   const floatingStyle = "absolute left-[105%] top-0 z-50 shadow-xl";
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col gap-2">
@@ -123,7 +125,7 @@ const ActivityLogFilters: React.FC<ActivityLogFiltersProps> = ({
           <PopoverTrigger asChild>
             <Button variant="outline" className="flex items-center gap-2 px-3">
               <Filter className="h-4 w-4" />
-              Filters
+              {t("filters")}
             </Button>
           </PopoverTrigger>
 

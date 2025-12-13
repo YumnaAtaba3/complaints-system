@@ -6,6 +6,7 @@ import LogsPagination from "../components/log-pagination";
 import ExportActivityLogButtons from "../components/export-log";
 import { useActivityLogs } from "../services/queries";
 import { Loader2 } from "lucide-react";
+import { t } from "i18next";
 
 const ActivityLogPage: React.FC = () => {
   const [eventType, setEventType] = useState("all");
@@ -48,7 +49,7 @@ const ActivityLogPage: React.FC = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6 text-gold">Activity Logs</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gold"> {t("activityLog")}</h1>
 
       {/* Filters and Export on the same row */}
       <div className="flex items-start justify-between gap-4 mb-6">
